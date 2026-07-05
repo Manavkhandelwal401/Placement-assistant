@@ -1107,9 +1107,19 @@
     // ==========================================
     // IN-APP TOAST SYSTEM & AUDIO SYNTHESIZER
     // ==========================================
+    // Shared AudioContext to bypass Chrome autoplay block
+    let globalAudioCtx = null;
+
     function triggerSound(type) {
       try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (!globalAudioCtx) {
+          globalAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (globalAudioCtx.state === "suspended") {
+          globalAudioCtx.resume();
+        }
+
+        const ctx = globalAudioCtx;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
@@ -1121,80 +1131,92 @@
           // Double clean high beep
           osc.type = "sine";
           osc.frequency.setValueAtTime(587.33, now); // D5
-          gain.gain.setValueAtTime(0.1, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
           osc.start(now);
-          osc.stop(now + 0.1);
+          osc.stop(now + 0.15);
 
           setTimeout(() => {
-            const ctx2 = new (window.AudioContext || window.webkitAudioContext)();
-            const osc2 = ctx2.createOscillator();
-            const gain2 = ctx2.createGain();
-            osc2.connect(gain2);
-            gain2.connect(ctx2.destination);
-            osc2.type = "sine";
-            osc2.frequency.setValueAtTime(880, ctx2.currentTime); // A5
-            gain2.gain.setValueAtTime(0.1, ctx2.currentTime);
-            gain2.gain.exponentialRampToValueAtTime(0.01, ctx2.currentTime + 0.15);
-            osc2.start();
-            osc2.stop(ctx2.currentTime + 0.15);
-          }, 100);
+            try {
+              if (globalAudioCtx.state === "suspended") globalAudioCtx.resume();
+              const osc2 = globalAudioCtx.createOscillator();
+              const gain2 = globalAudioCtx.createGain();
+              osc2.connect(gain2);
+              gain2.connect(globalAudioCtx.destination);
+              osc2.type = "sine";
+              osc2.frequency.setValueAtTime(880, globalAudioCtx.currentTime); // A5
+              gain2.gain.setValueAtTime(0.3, globalAudioCtx.currentTime);
+              gain2.gain.exponentialRampToValueAtTime(0.01, globalAudioCtx.currentTime + 0.2);
+              osc2.start();
+              osc2.stop(globalAudioCtx.currentTime + 0.2);
+            } catch (err) {
+              console.error(err);
+            }
+          }, 120);
         } else if (type === "stop") {
           // Descending warning chime
           osc.type = "sine";
           osc.frequency.setValueAtTime(440, now); // A4
-          osc.frequency.exponentialRampToValueAtTime(220, now + 0.3); // A3
-          gain.gain.setValueAtTime(0.12, now);
+          osc.frequency.exponentialRampToValueAtTime(220, now + 0.35); // A3
+          gain.gain.setValueAtTime(0.35, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } else if (type === "break-start") {
+          // Alert alarm sound
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(659.25, now); // E5
+          gain.gain.setValueAtTime(0.3, now);
           gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
           osc.start(now);
           osc.stop(now + 0.3);
-        } else if (type === "break-start") {
-          // Alarm notification sound
-          osc.type = "triangle";
-          osc.frequency.setValueAtTime(659.25, now); // E5
-          gain.gain.setValueAtTime(0.1, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-          osc.start(now);
-          osc.stop(now + 0.25);
           
           setTimeout(() => {
-            const ctx2 = new (window.AudioContext || window.webkitAudioContext)();
-            const osc2 = ctx2.createOscillator();
-            const gain2 = ctx2.createGain();
-            osc2.connect(gain2);
-            gain2.connect(ctx2.destination);
-            osc2.type = "triangle";
-            osc2.frequency.setValueAtTime(659.25, ctx2.currentTime);
-            gain2.gain.setValueAtTime(0.1, ctx2.currentTime);
-            gain2.gain.exponentialRampToValueAtTime(0.01, ctx2.currentTime + 0.25);
-            osc2.start();
-            osc2.stop(ctx2.currentTime + 0.25);
-          }, 300);
+            try {
+              if (globalAudioCtx.state === "suspended") globalAudioCtx.resume();
+              const osc2 = globalAudioCtx.createOscillator();
+              const gain2 = globalAudioCtx.createGain();
+              osc2.connect(gain2);
+              gain2.connect(globalAudioCtx.destination);
+              osc2.type = "triangle";
+              osc2.frequency.setValueAtTime(659.25, globalAudioCtx.currentTime);
+              gain2.gain.setValueAtTime(0.3, globalAudioCtx.currentTime);
+              gain2.gain.exponentialRampToValueAtTime(0.01, globalAudioCtx.currentTime + 0.3);
+              osc2.start();
+              osc2.stop(globalAudioCtx.currentTime + 0.3);
+            } catch (err) {
+              console.error(err);
+            }
+          }, 250);
         } else if (type === "break-stop") {
           // Cheerful ascending double chime
           osc.type = "sine";
           osc.frequency.setValueAtTime(523.25, now); // C5
-          gain.gain.setValueAtTime(0.1, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
           osc.start(now);
-          osc.stop(now + 0.1);
+          osc.stop(now + 0.12);
 
           setTimeout(() => {
-            const ctx2 = new (window.AudioContext || window.webkitAudioContext)();
-            const osc2 = ctx2.createOscillator();
-            const gain2 = ctx2.createGain();
-            osc2.connect(gain2);
-            gain2.connect(ctx2.destination);
-            osc2.type = "sine";
-            osc2.frequency.setValueAtTime(659.25, ctx2.currentTime); // E5
-            gain2.gain.setValueAtTime(0.1, ctx2.currentTime);
-            gain2.gain.exponentialRampToValueAtTime(0.01, ctx2.currentTime + 0.2);
-            osc2.start();
-            osc2.stop(ctx2.currentTime + 0.2);
-          }, 120);
+            try {
+              if (globalAudioCtx.state === "suspended") globalAudioCtx.resume();
+              const osc2 = globalAudioCtx.createOscillator();
+              const gain2 = globalAudioCtx.createGain();
+              osc2.connect(gain2);
+              gain2.connect(globalAudioCtx.destination);
+              osc2.type = "sine";
+              osc2.frequency.setValueAtTime(659.25, globalAudioCtx.currentTime); // E5
+              gain2.gain.setValueAtTime(0.3, globalAudioCtx.currentTime);
+              gain2.gain.exponentialRampToValueAtTime(0.01, globalAudioCtx.currentTime + 0.25);
+              osc2.start();
+              osc2.stop(globalAudioCtx.currentTime + 0.25);
+            } catch (err) {
+              console.error(err);
+            }
+          }, 100);
         }
       } catch (e) {
-        console.error("Synthesizer blocked by autoplay policy:", e);
+        console.error("Synthesizer blocked or failed:", e);
       }
     }
 

@@ -667,9 +667,12 @@
     <button onclick="toggleWidgetChat()" class="btn" style="border-radius: 50%; width: 55px; height: 55px; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4); font-size: 1.4rem; padding: 0;">👻</button>
     <!-- Chat Widget Window -->
     <div id="phantom-widget-window" class="card" style="display: none; position: absolute; bottom: 70px; right: 0; width: 330px; height: 420px; flex-direction: column; border: 1px solid var(--primary); box-shadow: 0 8px 30px rgba(0,0,0,0.5); padding: 1rem; gap: 0.5rem; background: var(--surface);">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 0.5rem; gap: 0.5rem;">
         <span style="font-weight: 700; color: var(--primary);">👻 Phantom Mentor</span>
-        <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="toggleWidgetChat()">Close</button>
+        <div style="display: flex; gap: 0.25rem;">
+          <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.3);" onclick="resetProfileFromChat()">✏️ Profile</button>
+          <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem;" onclick="toggleWidgetChat()">Close</button>
+        </div>
       </div>
       <div id="widget-chat-messages" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.8rem; padding: 0.25rem 0;">
         <div style="background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: 8px; border-left: 3px solid var(--primary);">
@@ -1813,6 +1816,14 @@
     window.toggleWidgetChat = function() {
       const windowEl = document.getElementById("phantom-widget-window");
       windowEl.style.display = windowEl.style.display === "none" ? "flex" : "none";
+    };
+
+    window.resetProfileFromChat = function() {
+      if (confirm("Do you want to re-configure your placement profile? This will let you change your name, study hours, and schedule targets.")) {
+        localStorage.removeItem("phantom_user_profile");
+        toggleWidgetChat();
+        checkOnboarding();
+      }
     };
 
     window.handleWidgetKeyPress = function(e) {

@@ -2462,8 +2462,9 @@
       renderCustomizeTab("profile");
     };
 
-    window.restartOnboardingFromCustomize = function() {
-      if (!confirm("Restart onboarding and edit the full profile flow? Your progress logs stay saved.")) return;
+    window.restartOnboardingFromCustomize = async function() {
+      const ok = await customConfirm("Restart onboarding and edit the full profile flow? Your progress logs stay saved.", "Reset Profile Onboarding");
+      if (!ok) return;
       withUndo("Profile reset", [customKeys.profile], () => {
         localStorage.removeItem(customKeys.profile);
         closeCustomizeModal();
@@ -2854,6 +2855,55 @@
       renderCustomizeTab("quotes");
     };
 
+    window.customConfirm = function(message, title = "Confirmation") {
+      return new Promise((resolve) => {
+        const modal = document.getElementById("customConfirmModal");
+        document.getElementById("confirm-title").innerText = title;
+        document.getElementById("confirm-message").innerText = message;
+        
+        modal.style.display = "flex";
+        
+        const okBtn = document.getElementById("confirm-ok-btn");
+        const cancelBtn = document.getElementById("confirm-cancel-btn");
+        
+        const cleanup = (value) => {
+          modal.style.display = "none";
+          okBtn.onclick = null;
+          cancelBtn.onclick = null;
+          resolve(value);
+        };
+        
+        okBtn.onclick = () => cleanup(true);
+        cancelBtn.onclick = () => cleanup(false);
+      });
+    };
+
+    window.customPrompt = function(message, defaultValue = "", title = "Input Required") {
+      return new Promise((resolve) => {
+        const modal = document.getElementById("customPromptModal");
+        document.getElementById("prompt-title").innerText = title;
+        document.getElementById("prompt-message").innerText = message;
+        const input = document.getElementById("prompt-input");
+        input.value = defaultValue;
+        
+        modal.style.display = "flex";
+        input.focus();
+        
+        const okBtn = document.getElementById("prompt-ok-btn");
+        const cancelBtn = document.getElementById("prompt-cancel-btn");
+        
+        const cleanup = (value) => {
+          modal.style.display = "none";
+          okBtn.onclick = null;
+          cancelBtn.onclick = null;
+          resolve(value);
+        };
+        
+        okBtn.onclick = () => cleanup(input.value);
+        cancelBtn.onclick = () => cleanup(null);
+      });
+    };
+
     // Floating Mentor window toggle
     window.toggleWidgetChat = function() {
       const windowEl = document.getElementById("phantom-widget-window");
@@ -2864,11 +2914,11 @@
       openCustomizeModal("profile");
     };
 
-    window.setGeminiKey = function() {
-      const key = prompt("Please enter your free Google Gemini API Key. (Get it from Google AI Studio):", localStorage.getItem("gemini_api_key") || "");
+    window.setGeminiKey = async function() {
+      const key = await customPrompt("Please enter your free Google Gemini API Key. (Get it from Google AI Studio):", localStorage.getItem("gemini_api_key") || "");
       if (key !== null) {
         localStorage.setItem("gemini_api_key", key.trim());
-        alert("Gemini API Key saved successfully! You can now ask general study questions.");
+        showToast("🔑 API Key Saved", "Gemini API Key saved successfully! You can now ask general study questions.", "toast-success");
       }
     };
 

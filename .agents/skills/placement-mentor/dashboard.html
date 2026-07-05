@@ -21,7 +21,7 @@
       --border: rgba(255, 255, 255, 0.08);
       --font: 'Plus Jakarta Sans', sans-serif;
 
-      /* Topic Colors for Calendar */
+      /* Topic Colors */
       --c-arrays: #0284c7;
       --c-bs: #0d9488;
       --c-ll: #059669;
@@ -233,9 +233,9 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 2rem;
-      width: 90%;
-      max-width: 800px;
-      max-height: 90vh;
+      width: 95%;
+      max-width: 900px;
+      max-height: 95vh;
       overflow-y: auto;
     }
 
@@ -263,6 +263,19 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.1s ease;
+    }
+
+    .calendar-day:hover {
+      transform: scale(1.05);
+      border-color: var(--primary);
+    }
+
+    .calendar-day.has-contest {
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
     }
 
     .calendar-header-day {
@@ -284,6 +297,16 @@
     .bg-dp { background: var(--c-dp); color: white; }
     .bg-graph { background: var(--c-graph); color: white; }
     .bg-tries { background: var(--c-tries); color: white; }
+
+    /* Day Detail Card inside Modal */
+    .day-detail-panel {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -299,7 +322,6 @@
   </header>
 
   <div class="dashboard-grid">
-    <!-- Left Column: Interactive Tasks -->
     <div class="card">
       <div class="progress-section">
         <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.95rem;">
@@ -312,14 +334,10 @@
       </div>
 
       <h2>📚 Daily Master Roadmap & Revision Triggers</h2>
-      <div class="task-list" id="task-container">
-        <!-- Generated dynamically -->
-      </div>
+      <div class="task-list" id="task-container"></div>
     </div>
 
-    <!-- Right Column: Projects, CS Core & Timetable -->
     <div style="display: flex; flex-direction: column; gap: 2rem;">
-      <!-- Timetable Card -->
       <div class="card">
         <h2>⏱️ Daily Timetable</h2>
         <div class="timetable-item">
@@ -344,35 +362,30 @@
         </div>
       </div>
 
-      <!-- Projects Card -->
       <div class="card">
         <h2>🚀 Projects Timeline</h2>
         <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
-          <div style="padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; gap: 0.25rem;">
+          <div style="padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px;">
             <div style="display: flex; justify-content: space-between; font-weight: 600;">
               <span>BioScout AI (Resume Lock)</span>
               <span class="sub-timeline">July 10 - 22</span>
             </div>
-            <span style="font-size: 0.8rem; color: var(--text-muted);">Fine-tune codebase, optimize keywords for applicant tracking systems.</span>
           </div>
-          <div style="padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; gap: 0.25rem;">
+          <div style="padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px;">
             <div style="display: flex; justify-content: space-between; font-weight: 600;">
               <span>ARIA Project</span>
               <span class="sub-timeline">July 23 - Aug 5</span>
             </div>
-            <span style="font-size: 0.8rem; color: var(--text-muted);">Complete functional blocks and finish README.</span>
           </div>
-          <div style="padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; gap: 0.25rem;">
+          <div style="padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px;">
             <div style="display: flex; justify-content: space-between; font-weight: 600;">
               <span>Global HRMS</span>
               <span class="sub-timeline">Aug 6 - 18</span>
             </div>
-            <span style="font-size: 0.8rem; color: var(--text-muted);">Review repository hygiene, standardise code patterns.</span>
           </div>
         </div>
       </div>
 
-      <!-- Skills Card -->
       <div class="card">
         <h2>💻 CS Core Skills Timeline</h2>
         <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
@@ -388,36 +401,34 @@
             <span>Operating Systems (OS)</span>
             <span class="sub-timeline">July 21 - 30</span>
           </div>
-          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
-            <span>Computer Networks (CN)</span>
-            <span class="sub-timeline">July 31 - Aug 8</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
-            <span>Linux & Git Basics</span>
-            <span class="sub-timeline">Aug 9 - 15</span>
-          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Calendar Modal -->
   <div class="modal" id="calendarModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 style="margin: 0;">📅 Placement Prep Month-by-Month Schedule</h2>
+        <h2 style="margin: 0;">📅 Interactive Placement Calendar</h2>
         <button class="btn" style="background: rgba(255,255,255,0.1); color: var(--text);" onclick="toggleModal(false)">Close</button>
       </div>
 
-      <h3 style="margin-bottom: 0.75rem; font-size: 1.1rem; color: var(--accent);">July 2026</h3>
-      <div class="calendar-grid" id="july-grid">
-        <!-- Generated by JS -->
+      <!-- Day Details Box -->
+      <div class="day-detail-panel" id="day-detail-panel">
+        <h3 id="detail-date" style="color: var(--primary);">July 5 Details</h3>
+        <div style="margin-top: 0.5rem;">
+          <strong>Active Topic:</strong> <span id="detail-topic">N/A</span>
+        </div>
+        <div id="detail-contests" style="margin-top: 0.5rem;">
+          <!-- Contests injected here -->
+        </div>
       </div>
 
+      <h3 style="margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.1rem; color: var(--accent);">July 2026</h3>
+      <div class="calendar-grid" id="july-grid"></div>
+
       <h3 style="margin-bottom: 0.75rem; font-size: 1.1rem; color: var(--accent);">August 2026</h3>
-      <div class="calendar-grid" id="aug-grid">
-        <!-- Generated by JS -->
-      </div>
+      <div class="calendar-grid" id="aug-grid"></div>
     </div>
   </div>
 
@@ -440,7 +451,19 @@
       { id: "tries", title: "Tries", date: "Aug 14 - 15", desc: "Prefix trees, insert, search.", numericDate: 8.14 }
     ];
 
-    const container = document.getElementById("task-container");
+    // Contests Schedule (July & August 2026)
+    const contests = [
+      { id: "lc-w1", name: "LeetCode Weekly Contest 501", date: "July 5", time: "08:00 AM - 09:30 AM", platform: "LeetCode", numericDate: 7.05 },
+      { id: "cf-r1", name: "Codeforces Round 1002 (Div. 2)", date: "July 7", time: "08:00 PM - 10:00 PM", platform: "Codeforces", numericDate: 7.07 },
+      { id: "at-abc1", name: "AtCoder Beginner Contest 361", date: "July 11", time: "05:30 PM - 07:10 PM", platform: "AtCoder", numericDate: 7.11 },
+      { id: "lc-bw1", name: "LeetCode Biweekly Contest 154", date: "July 11", time: "08:00 PM - 09:30 PM", platform: "LeetCode", numericDate: 7.11 },
+      { id: "lc-w2", name: "LeetCode Weekly Contest 502", date: "July 12", time: "08:00 AM - 09:30 AM", platform: "LeetCode", numericDate: 7.12 },
+      { id: "lc-w3", name: "LeetCode Weekly Contest 503", date: "July 19", time: "08:00 AM - 09:30 AM", platform: "LeetCode", numericDate: 7.19 },
+      { id: "at-abc2", name: "AtCoder Beginner Contest 362", date: "July 25", time: "05:30 PM - 07:10 PM", platform: "AtCoder", numericDate: 7.25 },
+      { id: "lc-bw2", name: "LeetCode Biweekly Contest 155", date: "July 25", time: "08:00 PM - 09:30 PM", platform: "LeetCode", numericDate: 7.25 },
+      { id: "lc-w4", name: "LeetCode Weekly Contest 504", date: "July 26", time: "08:00 AM - 09:30 AM", platform: "LeetCode", numericDate: 7.26 },
+      { id: "at-abc3", name: "AtCoder Beginner Contest 363", date: "Aug 8", time: "05:30 PM - 07:10 PM", platform: "AtCoder", numericDate: 8.08 }
+    ];
 
     function loadState() {
       return JSON.parse(localStorage.getItem("placement_progress")) || {};
@@ -551,7 +574,6 @@
       renderTasks();
     };
 
-    // Calendar Drawing Logic
     window.toggleModal = function(show) {
       document.getElementById("calendarModal").style.display = show ? "flex" : "none";
     };
@@ -592,6 +614,62 @@
       return "";
     }
 
+    // Dynamic click handler for Day details
+    window.showDayDetails = function(month, day) {
+      const numDate = parseFloat(`${month}.${day < 10 ? '0' + day : day}`);
+      const panel = document.getElementById("day-detail-panel");
+      const title = document.getElementById("detail-date");
+      const topicEl = document.getElementById("detail-topic");
+      const contestsEl = document.getElementById("detail-contests");
+
+      panel.style.display = "block";
+      const mName = month === 7 ? "July" : "August";
+      title.innerText = `${mName} ${day} Details`;
+
+      // Get Topic
+      const topic = getTopicName(month, day) || "No primary study topic scheduled";
+      topicEl.innerText = topic;
+
+      // Get Contests scheduled for this numeric date
+      const matches = contests.filter(c => c.numericDate === numDate);
+      contestsEl.innerHTML = "";
+
+      if (matches.length > 0) {
+        matches.forEach(c => {
+          const state = loadState();
+          const registered = state[`contest-${c.id}`] ? "Yes" : "No";
+          const btnText = state[`contest-${c.id}`] ? "Cancel Registration" : "Mark Registered";
+          const btnClass = state[`contest-${c.id}`] ? "background: var(--success);" : "background: var(--primary);";
+
+          contestsEl.innerHTML += `
+            <div style="border-top: 1px solid var(--border); padding-top: 0.5rem; margin-top: 0.5rem;">
+              <strong>Contest:</strong> ${c.name} (${c.platform})<br>
+              <strong>Time:</strong> ${c.time}<br>
+              <strong>Registered:</strong> <span style="font-weight:700; color: ${registered === 'Yes' ? 'var(--success)' : 'var(--accent)'}">${registered}</span>
+              <button class="btn" style="margin-top: 0.25rem; font-size: 0.8rem; padding: 0.25rem 0.5rem; ${btnClass}" onclick="toggleContest('${c.id}', ${month}, ${day})">${btnText}</button>
+            </div>
+          `;
+        });
+      } else {
+        contestsEl.innerHTML = `<div>No contests scheduled.</div>`;
+      }
+    };
+
+    window.toggleContest = function(contestId, month, day) {
+      const state = loadState();
+      state[`contest-${contestId}`] = !state[`contest-${contestId}`];
+      saveState(state);
+      showDayDetails(month, day);
+      buildCalendarGrids();
+    };
+
+    function buildCalendarGrids() {
+      // Build July
+      buildCalendar("july-grid", 7, 31, 3);
+      // Build August
+      buildCalendar("aug-grid", 8, 31, 6);
+    }
+
     function buildCalendar(gridId, month, daysInMonth, startOffset) {
       const grid = document.getElementById(gridId);
       grid.innerHTML = "";
@@ -608,8 +686,11 @@
       for (let day = 1; day <= daysInMonth; day++) {
         const cls = getTopicClass(month, day);
         const name = getTopicName(month, day);
+        const numDate = parseFloat(`${month}.${day < 10 ? '0' + day : day}`);
+        const hasCont = contests.some(c => c.numericDate === numDate);
+
         grid.innerHTML += `
-          <div class="calendar-day ${cls}">
+          <div class="calendar-day ${cls} ${hasCont ? 'has-contest' : ''}" onclick="showDayDetails(${month}, ${day})">
             <div>${day}</div>
             <div style="font-size: 0.65rem; text-align: right; opacity: 0.9;">${name}</div>
           </div>
@@ -617,11 +698,7 @@
       }
     }
 
-    // July 2026 starts on Wednesday (offset 3)
-    buildCalendar("july-grid", 7, 31, 3);
-    // August 2026 starts on Saturday (offset 6)
-    buildCalendar("aug-grid", 8, 31, 6);
-
+    buildCalendarGrids();
     renderTasks();
   </script>
 </body>

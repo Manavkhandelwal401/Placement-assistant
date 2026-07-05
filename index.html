@@ -1540,6 +1540,18 @@
         options: ["Let's do it! 🚀"]
       },
       {
+        question: "Were you recommended to use this app by Mayank Khandelwal?",
+        type: "options",
+        key: "recommendedByMayank",
+        options: ["Yes, Mayank recommended me", "No, I found it myself"]
+      },
+      {
+        question: "Awesome! Are you a JECRC University CRT Student?",
+        type: "options",
+        key: "jecrcStudent",
+        options: ["Yes, I am a JECRC CRT student", "No, I study elsewhere"]
+      },
+      {
         question: "Awesome! First, what is your name?",
         type: "text",
         key: "name",
@@ -1712,10 +1724,27 @@
       }
       onboardingStep++;
       
-      // Branch skip: If user selects 'No partner', skip Telegram ID input step
+      // Skipping logic for JECRC batchmate shortcut
+      if (step.key === "recommendedByMayank" && val.includes("No")) {
+        onboardingStep++; // Skip JECRC Student question (step index 2)
+      }
+
+      if (step.key === "jecrcStudent" && val.includes("Yes")) {
+        // Fast-onboard matching Mayank's profile config
+        tempProfile.targetDate = "Sept 1 (Target)";
+        tempProfile.collegeHours = "09:00 AM - 04:30 PM (Standard CRT)";
+        tempProfile.commute = "Yes, 1hr commute (Aptitude prep)";
+        tempProfile.language = "Java (DSA)";
+        tempProfile.partner = "No, keep it personal";
+        tempProfile.telegramId = "none";
+        
+        // Go directly to name query step
+        onboardingStep = 3;
+      }
+
       if (step.key === "partner" && val.includes("No")) {
         tempProfile["telegramId"] = "none";
-        onboardingStep += 1; // skip step 7
+        onboardingStep += 1; // Skip Telegram ID prompt
       }
 
       runOnboardingStep();
@@ -1732,6 +1761,12 @@
         tempProfile[step.key] = val;
       }
       onboardingStep++;
+
+      // If they input their name, and they are JECRC students, jump straight to completion
+      if (step.key === "name" && tempProfile.jecrcStudent && tempProfile.jecrcStudent.includes("Yes")) {
+        onboardingStep = 10;
+      }
+
       runOnboardingStep();
     }
 

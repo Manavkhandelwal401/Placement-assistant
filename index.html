@@ -1921,8 +1921,12 @@
       // 3. Dispatch to Gemini API if key is present
       const apiKey = localStorage.getItem("gemini_api_key");
       if (apiKey && apiKey !== "none" && apiKey !== "") {
-        try {
-          const systemPrompt = `You are "Phantom Mentor", a personal software engineering placement assistant and career advisor.
+        const models = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-flash-8b", "gemini-1.5-pro"];
+        let lastError = null;
+
+        for (const model of models) {
+          try {
+            const systemPrompt = `You are "Phantom Mentor", a personal software engineering placement assistant and career advisor.
 Your tone is encouraging, brief, clear, and highly focus-oriented.
 Answer the user's software engineering, DSA, coding, or computer science placement query.
 Be concise and structure your response with bullet points where appropriate. Keep it under 150 words.
@@ -1934,32 +1938,36 @@ Here is the student's profile context for personalization:
 
 User Query: ${input}`;
 
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
-                    { text: systemPrompt }
-                  ]
-                }
-              ]
-            })
-          });
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [
+                  {
+                    parts: [
+                      { text: systemPrompt }
+                    ]
+                  }
+                ]
+              })
+            });
 
-          if (!res.ok) {
-            const errData = await res.json();
-            throw new Error(errData.error?.message || "Gemini API error");
+            if (!res.ok) {
+              const errData = await res.json();
+              throw new Error(errData.error?.message || "Gemini API error");
+            }
+
+            const data = await res.json();
+            const reply = data.candidates[0].content.parts[0].text;
+            return reply.trim();
+          } catch (e) {
+            console.warn(`Model ${model} query failed, trying fallback:`, e);
+            lastError = e;
           }
-
-          const data = await res.json();
-          const reply = data.candidates[0].content.parts[0].text;
-          return reply.trim();
-        } catch (e) {
-          console.error("Gemini query error:", e);
-          return `Oops! I couldn't reach Gemini. (Error: ${e.message}). Verify your internet connection or check your API key by clicking the 🔑 Key button.`;
         }
+
+        // If all models failed in the loop
+        return `Oops! Gemini returned an error (Error: ${lastError ? lastError.message : "Unknown"}). Verify your internet connection or check your API key by clicking the 🔑 Key button.`;
       }
 
       // 4. Default Offline fallback if no API key is set

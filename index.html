@@ -491,14 +491,17 @@
         </div>
 
         <div style="border-top:1px solid var(--border); padding-top: 1rem;">
-          <h3 style="font-size: 0.9rem; margin-bottom: 0.5rem;">Partner Accountability Settings (Mahak)</h3>
-          <div class="form-group">
-            <label>Discord Webhook URL</label>
-            <input type="text" class="form-control" id="settings-webhook" placeholder="Paste Discord Webhook URL" onchange="saveSettings()">
+          <h3 style="font-size: 0.9rem; margin-bottom: 0.5rem;">Partner Accountability (Telegram Bot)</h3>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.75rem; line-height:1.3;">
+            Create a free Telegram bot via <strong>@BotFather</strong>, add it to your chat with Mahak, and paste the details below:
           </div>
           <div class="form-group">
-            <label>Mahak's Email (Report Log)</label>
-            <input type="email" class="form-control" id="settings-email" placeholder="mahak@example.com" onchange="saveSettings()">
+            <label>Telegram Bot Token</label>
+            <input type="text" class="form-control" id="settings-tg-token" placeholder="123456789:ABCDefGhI..." onchange="saveSettings()">
+          </div>
+          <div class="form-group">
+            <label>Telegram Chat ID (User or Group ID)</label>
+            <input type="text" class="form-control" id="settings-tg-chat" placeholder="-100123456789" onchange="saveSettings()">
           </div>
         </div>
       </div>
@@ -742,7 +745,7 @@
       "CRT class mein lunch sochna band kar, backend database indexing structure aur pseudocode soch.",
       "Aaj ka Sliding Window coding block miss kiya? Agla window seedhe college drop-out ya unemployment ka khulega.",
       "Reels dekhne wale 3 LPA par rote hain, code karne wale 12 LPA lekar direct full power chill karte hain.",
-      "Sarkari naukri ki umeed mat rakhna, general category ka vaise bhi bura haal hai. Code kar lo chupchap.",
+      "Sarkari naukri ki umeed mat rakhna, general category ka vaise bhi bura haal hai. Code carry kar lo chupchap.",
       "Wasihat se be-dakhil hona hai ya placement lagwana hai? Decision tumhara hai.",
       "Doston ke sath chai sutta chal raha hai? Sept 1 ko jab wo select honge aur tum resume edit kar rahe hoge, tab chalega asli filter.",
       "BioScout AI resume par chipka toh diya, par code ka architecture poochte hi tera self-destruct logic active ho jata hai.",
@@ -1055,20 +1058,16 @@
     }
 
     // ==========================================
-    // STUDY SESSION TIMER & WEBHOOK FUNCTIONALITY
+    // STUDY SESSION TIMER & TELEGRAM BOT API
     // ==========================================
     let timerInterval = null;
     let secondsElapsed = 0;
     let studyActive = false;
     let timerStartDate = null;
 
-    // Get Active DSA Topic based on July 5 system starting date rules
     function getCurrentStudyTopic() {
       const today = new Date();
-      // Mock system date simulation mapping to our timeline dates
-      // Default to today's topic based on the scheduler
-      const month = today.getMonth() + 1;
-      const date = today.getDate();
+      // Returns current topic name on timeline date mapping
       const topicName = getTopicName(7, 5) || "Sliding Window"; 
       return topicName;
     }
@@ -1081,15 +1080,15 @@
     }
 
     function saveSettings() {
-      const webhook = document.getElementById("settings-webhook").value;
-      const email = document.getElementById("settings-email").value;
-      localStorage.setItem("timer_settings", JSON.stringify({ webhook, email }));
+      const token = document.getElementById("settings-tg-token").value;
+      const chat = document.getElementById("settings-tg-chat").value;
+      localStorage.setItem("timer_settings_tg", JSON.stringify({ token, chat }));
     }
 
     function loadSettings() {
-      const saved = JSON.parse(localStorage.getItem("timer_settings")) || {};
-      if (saved.webhook) document.getElementById("settings-webhook").value = saved.webhook;
-      if (saved.email) document.getElementById("settings-email").value = saved.email;
+      const saved = JSON.parse(localStorage.getItem("timer_settings_tg")) || {};
+      if (saved.token) document.getElementById("settings-tg-token").value = saved.token;
+      if (saved.chat) document.getElementById("settings-tg-chat").value = saved.chat;
     }
 
     function startTimer() {
@@ -1111,8 +1110,8 @@
         }
       }, 1000);
 
-      // Trigger Webhook Notification (Session Start)
-      sendDiscordWebhook("start");
+      // Trigger Telegram Bot Start Notification
+      sendTelegramMessage("start");
     }
 
     function updateTimerDisplay() {
@@ -1125,7 +1124,6 @@
     }
 
     function triggerBreakAlert() {
-      // Dynamic advice based on morning/night
       const hour = new Date().getHours();
       let advice = "";
       if (hour >= 6 && hour < 18) {
@@ -1134,11 +1132,10 @@
         advice = "💡 Scientific break: Wash your face with cold water, stretch your back/neck, avoid looking at any phone screens to prevent brain fatigue.";
       }
 
-      // Browser push notification if permission allowed
       if (Notification.permission === "granted") {
-        new Notification("🚨 Time for a Scientific Break!", { body: advice });
+        new Notification(" Time for a Scientific Break!", { body: advice });
       } else {
-        alert("🚨 Time for a Break!\n\n" + advice);
+        alert(" Time for a Break!\n\n" + advice);
       }
     }
 
@@ -1147,7 +1144,6 @@
       clearInterval(timerInterval);
       studyActive = false;
 
-      // Update feedback modal details
       document.getElementById("feedback-subtitle").innerText = `You studied ${getCurrentStudyTopic()} for ${document.getElementById("timer-text").innerText}.`;
       document.getElementById("feedbackModal").style.display = "flex";
     }
@@ -1181,15 +1177,13 @@
         notes
       };
 
-      // Save to localStorage list
       let logs = JSON.parse(localStorage.getItem("study_history")) || [];
       logs.unshift(sessionLog);
       localStorage.setItem("study_history", JSON.stringify(logs));
 
-      // Trigger Webhook Notification (Session End)
-      sendDiscordWebhook("stop", sessionLog);
+      // Trigger Telegram Bot End Notification
+      sendTelegramMessage("stop", sessionLog);
 
-      // Clean inputs
       document.getElementById("log-easy").value = "0";
       document.getElementById("log-med").value = "0";
       document.getElementById("log-hard").value = "0";
@@ -1242,33 +1236,36 @@
       }
     }
 
-    // DISCORD WEBHOOK INTEGRATION
-    function sendDiscordWebhook(type, sessionLog = null) {
-      const saved = JSON.parse(localStorage.getItem("timer_settings")) || {};
-      const webhookUrl = saved.webhook;
-      if (!webhookUrl) return; // Silent if no Webhook URL is set
+    // TELEGRAM MESSENGER BOT INTEGRATION
+    function sendTelegramMessage(type, sessionLog = null) {
+      const saved = JSON.parse(localStorage.getItem("timer_settings_tg")) || {};
+      const token = saved.token;
+      const chat = saved.chat;
+      if (!token || !chat) return; // Silent if no TG info is saved
 
-      let payload = {};
+      let text = "";
       const startTime = timerStartDate ? timerStartDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : "";
 
       if (type === "start") {
-        payload = {
-          content: `🚀 **Mayank started studying!**\n📚 **Topic**: ${getCurrentStudyTopic()}\n⏱️ **Start Time**: ${startTime}\n*Timer is running. Let's grind!*`
-        };
+        text = `🚀 *Mayank started studying!*\n\n📚 *Topic*: ${getCurrentStudyTopic()}\n⏱️ *Start Time*: ${startTime}\n\n_Timer is running. Let's do this!_`;
       } else if (type === "stop" && sessionLog) {
         const starRating = "⭐".repeat(sessionLog.rating);
-        payload = {
-          content: `✅ **Mayank completed a study session!**\n📚 **Topic**: ${sessionLog.topic}\n⏱️ **Duration**: ${sessionLog.duration}\n🧠 **Understanding**: ${starRating} (${sessionLog.rating}/5)\n💻 **LeetCode Solved**: ${sessionLog.easy} Easy | ${sessionLog.med} Medium | ${sessionLog.hard} Hard\n📝 **Session Notes**: *${sessionLog.notes || "None"}*`
-        };
+        text = `✅ *Mayank completed a study session!*\n\n📚 *Topic*: ${sessionLog.topic}\n⏱️ *Duration*: ${sessionLog.duration}\n🧠 *Understanding*: ${starRating} (${sessionLog.rating}/5)\n💻 *LeetCode Solved*: ${sessionLog.easy} Easy | ${sessionLog.med} Medium | ${sessionLog.hard} Hard\n📝 *Session Notes*: _${sessionLog.notes || "None"}_`;
       }
 
-      fetch(webhookUrl, {
+      const url = `https://api.telegram.org/bot${token}/sendMessage`;
+      
+      fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          chat_id: chat,
+          text: text,
+          parse_mode: "Markdown"
+        })
       })
-      .then(res => console.log("Accountability Webhook Sent!", res))
-      .catch(err => console.error("Webhook Delivery Failed:", err));
+      .then(res => console.log("Telegram Accountability Message Sent!", res))
+      .catch(err => console.error("Telegram API Delivery Failed:", err));
     }
 
     // Request browser notification permissions on load

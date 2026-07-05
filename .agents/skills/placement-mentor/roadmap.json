@@ -6,34 +6,46 @@
   },
   "backlog": {
     "commitments": [
-      "Kadane's Algorithm & Array Basics",
-      "Advanced Arrays (Two Pointers & Subarrays)",
-      "Strings & Basic Bit Manipulation",
-      "Binary Search & Advanced Bit Manipulation",
-      "Binary Search on Search Space / 2D & LinkedList Intro",
-      "Advanced LinkedList & Stack Introduction",
-      "Monotonic Stack / Queue & Min-Max Heap",
-      "Advanced Heaps & Sliding Window / Two Pointers",
-      "Binary Trees (Properties & DFS Traversals)",
-      "Advanced Trees (LCA, Paths & BST)",
-      "Graphs (BFS / DFS & Connectivity)",
-      "DSU, Topological Sort & Advanced Graphs",
-      "Inversions, Ordered Set & House Robber DP",
-      "Greedy Algorithms & Grid/Substring DP",
-      "Advanced DP (MCM, Stocks) & Tries",
-      "DAT Day & Full Revision Marathon"
+      "Sliding Window (July 5)",
+      "Two Pointer, Prefix/Suffix Sum, HashMap/HashSet (July 6)",
+      "Sorting (July 7)",
+      "Matrix, ArrayList, StringBuilder (July 8)",
+      "Pattern Matching (Strings) (July 9)",
+      "Important Algos (Arrays) (July 10)",
+      "Binary Search (July 11-13)",
+      "Linked List (July 14-16)",
+      "Stack & Queue (July 17-20)",
+      "Heap & Greedy (July 21-23)",
+      "Trees & BST (July 24-28)",
+      "Recursion & Backtracking (July 29 - Aug 1)",
+      "Dynamic Programming (Aug 2-6)",
+      "Graph (Aug 7-11)",
+      "Tries (Aug 12-15)"
     ],
-    "unfinished_work": [],
+    "unfinished_work": [
+      "Projects: Complete & Finetune BioScout AI, ARIA, Global HRMS",
+      "CS Core: SQL, DBMS, OS, Computer Networks, Linux",
+      "DevOps Basics: APIs, Docker, Git/GitHub"
+    ],
     "blocked_by": ""
   },
   "state": {
-    "active_topic": "Kadane's Algorithm & Array Basics",
-    "active_pattern": "Kadane's Algorithm",
-    "today_plan": "",
-    "tomorrow_plan": "",
-    "weekly_goal": "Complete Days 1 to 7 (Arrays, Strings, BS, LinkedList, and Stack basics)",
-    "monthly_goal": "Complete all 16 days of the FAANG DSA Master Study Plan and top the DAT Exam",
-    "weekly_review": ""
+    "active_topic": "Arrays & Strings: Sliding Window",
+    "active_pattern": "Fixed & Variable Sliding Window",
+    "today_plan": "Finish Sliding Window playlist & solve 3 problems (LC-3, LC-1004, LC-567)",
+    "tomorrow_plan": "Two Pointer, Prefix/Suffix Sum, HashMap/HashSet + CRT Aptitude Prep",
+    "weekly_goal": "Complete Arrays & Strings module + Baseline Resume review for Projects",
+    "monthly_goal": "Finish core DSA up to Trees/BST + Complete SQL & DBMS fundamentals",
+    "weekly_review": "",
+    "daily_timetable": {
+      "0800_0900_commute_to_college": "Passive review of Aptitude / Daily CBT topics (on phone)",
+      "0900_1630_college_crt": "Attend class (Focus on GD/Interview/Aptitude practice; ignore low-quality theory)",
+      "1630_1730_commute_to_home": "Aptitude speed-runs or core CS concept cards",
+      "1800_2000_study_block_1": "DSA active coding (LeetCode matching the roadmap active topic)",
+      "2000_2100_dinner": "Rest / break",
+      "2100_2300_study_block_2": "DBMS/OS/SQL (Even days) | Projects fine-tuning (BioScout AI/ARIA) (Odd days)",
+      "2300_0000_wrap_up": "Daily progress check, local roadmap.json update, and Git commit"
+    }
   },
   "completed_topics": [],
   "failed_topics": [],
@@ -53,9 +65,13 @@
     "commit_frequency_week": 0
   },
   "project_progress": {
-    "active_project": "",
+    "active_project": "BioScout AI",
     "milestones_completed": [],
-    "pending_tasks": []
+    "pending_tasks": [
+      "Review BioScout AI codebase for resume optimization",
+      "Finetune ARIA project details",
+      "Verify Global HRMS repo"
+    ]
   },
   "resume_reviews": [],
   "mock_interviews": [],
@@ -86,8 +102,8 @@
   },
   "daily_log": [],
   "current_status": {
-    "priority": "Complete Days 1-7 arrays, strings, and BS basics",
-    "risk": "Time crunch with 16 days of curriculum starting today",
-    "last_session_summary": "Workspace initialized to Day 1 of FAANG study plan."
+    "priority": "Complete Sliding Window playlist & code 3 problems",
+    "risk": "Time compression from 10-hour college CRT block; must exploit travel windows",
+    "last_session_summary": "Daily 5-hour study timetable integrated to balance CRT classes with DSA and Projects."
   }
 }

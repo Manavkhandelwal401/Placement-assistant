@@ -670,13 +670,14 @@
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 0.5rem; gap: 0.5rem;">
         <span style="font-weight: 700; color: var(--primary);">👻 Phantom Mentor</span>
         <div style="display: flex; gap: 0.25rem;">
+          <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: var(--success-glow); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3);" onclick="setGeminiKey()">🔑 Key</button>
           <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.3);" onclick="resetProfileFromChat()">✏️ Profile</button>
           <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem;" onclick="toggleWidgetChat()">Close</button>
         </div>
       </div>
       <div id="widget-chat-messages" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.8rem; padding: 0.25rem 0;">
         <div style="background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: 8px; border-left: 3px solid var(--primary);">
-          Hey! Ask me anything about your roadmap, daily timetable, progress, or DP tips. (type 'reset' to clear profile)
+          Hey! Ask me anything about your roadmap, daily timetable, progress, or DP tips. Save a free Gemini API key to ask general study questions! (type 'reset' to clear profile)
         </div>
       </div>
       <div style="display: flex; gap: 0.4rem; border-top: 1px solid var(--border); padding-top: 0.5rem;">
@@ -1826,11 +1827,19 @@
       }
     };
 
+    window.setGeminiKey = function() {
+      const key = prompt("Please enter your free Google Gemini API Key. (Get it from Google AI Studio):", localStorage.getItem("gemini_api_key") || "");
+      if (key !== null) {
+        localStorage.setItem("gemini_api_key", key.trim());
+        alert("Gemini API Key saved successfully! You can now ask general study questions.");
+      }
+    };
+
     window.handleWidgetKeyPress = function(e) {
       if (e.key === "Enter") sendWidgetMsg();
     };
 
-    window.sendWidgetMsg = function() {
+    window.sendWidgetMsg = async function() {
       const input = document.getElementById("widget-chat-input");
       const val = input.value.trim();
       if (!val) return;
@@ -1838,11 +1847,16 @@
       addWidgetBubble(val, true);
       input.value = "";
 
-      // Bot NLP routing
-      setTimeout(() => {
-        const botReply = generateMentorResponse(val);
-        addWidgetBubble(botReply);
-      }, 400);
+      // Add a thinking indicator bubble
+      const loadingDiv = addWidgetBubble("Thinking...", false);
+
+      try {
+        const botReply = await generateMentorResponse(val);
+        loadingDiv.innerText = botReply;
+      } catch (err) {
+        console.error(err);
+        loadingDiv.innerText = "Error getting response. Please check your internet connection or API Key settings.";
+      }
     };
 
     function addWidgetBubble(text, isUser = false) {
@@ -1867,14 +1881,23 @@
       div.innerText = text;
       msgBox.appendChild(div);
       msgBox.scrollTop = msgBox.scrollHeight;
+      return div; // Return DOM node to update content asynchronously
     }
 
-    function generateMentorResponse(input) {
-      const text = input.toLowerCase();
+    async function generateMentorResponse(input) {
+      const text = input.toLowerCase().trim();
       const profile = JSON.parse(localStorage.getItem("phantom_user_profile")) || {};
       const uName = profile.name || "Mayank";
 
-      if (text.includes("reset")) {
+      // 1. Save API Key via chat text input command
+      if (text.startsWith("key ")) {
+        const k = input.substring(4).trim();
+        localStorage.setItem("gemini_api_key", k);
+        return "Awesome! Your Gemini API Key has been saved successfully in your local storage. You can now ask me any coding or DSA questions! 🚀";
+      }
+
+      // 2. Offline routing triggers
+      if (text === "reset") {
         setTimeout(() => {
           localStorage.removeItem("phantom_user_profile");
           checkOnboarding();
@@ -1882,12 +1905,12 @@
         return "Resetting your profile and restarting onboarding chat flow... 🔄";
       }
 
-      if (text.includes("today") || text.includes("schedule") || text.includes("timetable") || text.includes("padhna")) {
+      if (text === "today" || text === "schedule" || text === "timetable" || text === "padhna") {
         const topic = getCurrentStudyTopic();
         return `Hey ${uName}, today's schedule is active. Topic is: ${topic}. Solve LC-3, LC-1004, LC-567! Check your dynamic timetable card for coding hours.`;
       }
 
-      if (text.includes("progress") || text.includes("completion") || text.includes("stats")) {
+      if (text === "progress" || text === "completion" || text === "stats") {
         const state = loadState();
         let done = 0;
         primaryTopics.forEach(t => { if (state[t.id]) done++; });
@@ -1895,22 +1918,66 @@
         return `You have completed ${done} out of ${primaryTopics.length} core topics (${pct}%). Keep pushing!`;
       }
 
+      // 3. Dispatch to Gemini API if key is present
+      const apiKey = localStorage.getItem("gemini_api_key");
+      if (apiKey && apiKey !== "none" && apiKey !== "") {
+        try {
+          const systemPrompt = `You are "Phantom Mentor", a personal software engineering placement assistant and career advisor.
+Your tone is encouraging, brief, clear, and highly focus-oriented.
+Answer the user's software engineering, DSA, coding, or computer science placement query.
+Be concise and structure your response with bullet points where appropriate. Keep it under 150 words.
+Here is the student's profile context for personalization:
+- Name: ${uName}
+- Target Date: ${profile.targetDate || 'Sept 1'}
+- Language Focus: ${profile.language || 'Java'}
+- College/CRT schedule: ${profile.collegeHours || '09:00 AM - 04:30 PM'}
+
+User Query: ${input}`;
+
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    { text: systemPrompt }
+                  ]
+                }
+              ]
+            })
+          });
+
+          if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.error?.message || "Gemini API error");
+          }
+
+          const data = await res.json();
+          const reply = data.candidates[0].content.parts[0].text;
+          return reply.trim();
+        } catch (e) {
+          console.error("Gemini query error:", e);
+          return `Oops! I couldn't reach Gemini. (Error: ${e.message}). Verify your internet connection or check your API key by clicking the 🔑 Key button.`;
+        }
+      }
+
+      // 4. Default Offline fallback if no API key is set
       if (text.includes("tip") || text.includes("dsa") || text.includes("dp")) {
         const dsaTips = [
           "DP tip: Solve matching grid path problems using bottom-up tabulations to prevent recursion stack overflow.",
-          "Sliding Window tip: Use variable window templates `while(invalid) { shrink left }` to resolve string problems.",
-          "Binary Search tip: Always verify search bounds `low` and `high` around mid calculation `low + (high - low)/2`.",
+          "Sliding Window tip: Use variable window templates \`while(invalid) { shrink left }\` to resolve string problems.",
+          "Binary Search tip: Always verify search bounds \`low\` and \`high\` around mid calculation \`low + (high - low)/2\`.",
           "Trees tip: Almost every tree question is solved via DFS post-order or BFS queue level-order."
         ];
         return dsaTips[Math.floor(Math.random() * dsaTips.length)];
       }
 
       if (text.includes("hi") || text.includes("hello") || text.includes("hey")) {
-        return `Hey ${uName}! Ready to crush some LeetCode today? Ask me about your 'schedule', 'progress', 'dsa tip', or say 'reset' to rebuild your profile!`;
+        return `Hey ${uName}! Ready to crush some LeetCode today? Ask me about your 'schedule' or 'progress'. To ask coding/CS questions, save a free Gemini API Key (click the '🔑 Key' button or type 'key YOUR_API_KEY').`;
       }
 
-      // Random sarcastic quote fallback
-      return quotes[Math.floor(Math.random() * quotes.length)];
+      return `Keep grinding! To ask general CS and DSA questions, please set up your Gemini API key (click '🔑 Key' or type 'key YOUR_API_KEY'). In the meantime, focus on your active schedule today!`;
     }
 
     buildCalendarGrids();

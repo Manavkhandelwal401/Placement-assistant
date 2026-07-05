@@ -308,8 +308,20 @@
       display: none;
     }
   </style>
+  <script>
+    window.onerror = function(msg, url, line) {
+      const errDiv = document.getElementById("error-boundary");
+      if (errDiv) {
+        errDiv.style.display = "block";
+        errDiv.innerText = "JS Crash Error: " + msg + " at line " + line;
+      }
+      return false;
+    };
+  </script>
 </head>
 <body>
+  <div id="error-boundary" style="display:none; background:#ef4444; color:white; padding:1.5rem; font-weight:bold; font-family:monospace; margin-bottom:2rem; border-radius:12px;"></div>
+
   <header>
     <div>
       <h1>Placement Prep Operating System</h1>
@@ -464,6 +476,8 @@
       { id: "lc-w4", name: "LeetCode Weekly Contest 504", date: "July 26", time: "08:00 AM - 09:30 AM", platform: "LeetCode", numericDate: 7.26 },
       { id: "at-abc3", name: "AtCoder Beginner Contest 363", date: "Aug 8", time: "05:30 PM - 07:10 PM", platform: "AtCoder", numericDate: 8.08 }
     ];
+
+    const container = document.getElementById("task-container");
 
     function loadState() {
       try {
@@ -623,7 +637,6 @@
       const today = 7.05; // Base system date: July 5th
       if (c.numericDate < today) return true;
       if (c.numericDate === today) {
-        // LeetCode July 5th morning contest has passed
         return true;
       }
       return false;

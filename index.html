@@ -959,20 +959,6 @@
       return "";
     }
 
-    // Contests Schedule (July & August 2026)
-    const contests = [
-      { id: "lc-w1", name: "LeetCode Weekly Contest 501", date: "July 5", time: "08:00 AM - 09:30 AM", platform: "LeetCode", numericDate: 7.05 },
-      { id: "cf-r1", name: "Codeforces Round 1002 (Div. 2)", date: "July 7", time: "08:00 PM - 10:00 PM", platform: "Codeforces", numericDate: 7.07 },
-      { id: "at-abc1", name: "AtCoder Beginner Contest 361", date: "July 11", time: "05:30 PM - 07:10 PM", platform: "AtCoder", numericDate: 7.11 },
-      { id: "lc-bw1", name: "LeetCode Biweekly Contest 154", date: "July 11", time: "08:00 PM - 09:30 PM", platform: "LeetCode", numericDate: 7.11 },
-      { id: "lc-w2", name: "LeetCode Weekly Contest 502", date: "July 12", time: "08:00 AM - 09:30 AM", platform: "LeetCode", numericDate: 7.12 },
-      { id: "lc-w3", name: "LeetCode Weekly Contest 503", date: "July 19", time: "08:00 AM - 09:30 AM", platform: "LeetCode", numericDate: 7.19 },
-      { id: "at-abc2", name: "AtCoder Beginner Contest 362", date: "July 25", time: "05:30 PM - 07:10 PM", platform: "AtCoder", numericDate: 7.25 },
-      { id: "lc-bw2", name: "LeetCode Biweekly Contest 155", date: "July 25", time: "08:00 PM - 09:30 PM", platform: "LeetCode", numericDate: 7.25 },
-      { id: "lc-w4", name: "LeetCode Weekly Contest 504", date: "July 26", time: "08:00 AM - 09:30 AM", platform: "LeetCode", numericDate: 7.26 },
-      { id: "at-abc3", name: "AtCoder Beginner Contest 363", date: "Aug 8", time: "05:30 PM - 07:10 PM", platform: "AtCoder", numericDate: 8.08 }
-    ];
-
     function isPastContest(c) {
       const today = 7.05; // Base system date: July 5th
       if (c.numericDate < today) return true;

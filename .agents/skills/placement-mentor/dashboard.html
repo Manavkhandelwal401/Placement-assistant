@@ -466,7 +466,12 @@
     ];
 
     function loadState() {
-      return JSON.parse(localStorage.getItem("placement_progress")) || {};
+      try {
+        return JSON.parse(localStorage.getItem("placement_progress")) || {};
+      } catch (e) {
+        console.error("Corrupted state wiped:", e);
+        return {};
+      }
     }
 
     function saveState(state) {
@@ -614,7 +619,16 @@
       return "";
     }
 
-    // Dynamic click handler for Day details
+    function isPastContest(c) {
+      const today = 7.05; // Base system date: July 5th
+      if (c.numericDate < today) return true;
+      if (c.numericDate === today) {
+        // LeetCode July 5th morning contest has passed
+        return true;
+      }
+      return false;
+    }
+
     window.showDayDetails = function(month, day) {
       const numDate = parseFloat(`${month}.${day < 10 ? '0' + day : day}`);
       const panel = document.getElementById("day-detail-panel");
@@ -626,27 +640,39 @@
       const mName = month === 7 ? "July" : "August";
       title.innerText = `${mName} ${day} Details`;
 
-      // Get Topic
       const topic = getTopicName(month, day) || "No primary study topic scheduled";
       topicEl.innerText = topic;
 
-      // Get Contests scheduled for this numeric date
       const matches = contests.filter(c => c.numericDate === numDate);
       contestsEl.innerHTML = "";
 
       if (matches.length > 0) {
         matches.forEach(c => {
           const state = loadState();
-          const registered = state[`contest-${c.id}`] ? "Yes" : "No";
-          const btnText = state[`contest-${c.id}`] ? "Cancel Registration" : "Mark Registered";
-          const btnClass = state[`contest-${c.id}`] ? "background: var(--success);" : "background: var(--primary);";
+          const past = isPastContest(c);
+          
+          let statusText = "";
+          let buttonHtml = "";
+
+          if (past) {
+            const attended = state[`contest-${c.id}`] ? "Attended" : "Completed (Not Attended)";
+            const color = state[`contest-${c.id}`] ? "var(--success)" : "var(--text-muted)";
+            statusText = `<span style="font-weight:700; color: ${color}">${attended}</span>`;
+          } else {
+            const registered = state[`contest-${c.id}`] ? "Yes" : "No";
+            const btnText = state[`contest-${c.id}`] ? "Cancel Registration" : "Mark Registered";
+            const btnClass = state[`contest-${c.id}`] ? "background: var(--success);" : "background: var(--primary);";
+            
+            statusText = `<span style="font-weight:700; color: ${registered === 'Yes' ? 'var(--success)' : 'var(--accent)'}">${registered}</span>`;
+            buttonHtml = `<button class="btn" style="margin-top: 0.25rem; font-size: 0.8rem; padding: 0.25rem 0.5rem; ${btnClass}" onclick="toggleContest('${c.id}', ${month}, ${day})">${btnText}</button>`;
+          }
 
           contestsEl.innerHTML += `
             <div style="border-top: 1px solid var(--border); padding-top: 0.5rem; margin-top: 0.5rem;">
               <strong>Contest:</strong> ${c.name} (${c.platform})<br>
               <strong>Time:</strong> ${c.time}<br>
-              <strong>Registered:</strong> <span style="font-weight:700; color: ${registered === 'Yes' ? 'var(--success)' : 'var(--accent)'}">${registered}</span>
-              <button class="btn" style="margin-top: 0.25rem; font-size: 0.8rem; padding: 0.25rem 0.5rem; ${btnClass}" onclick="toggleContest('${c.id}', ${month}, ${day})">${btnText}</button>
+              <strong>Status/Registered:</strong> ${statusText}
+              ${buttonHtml}
             </div>
           `;
         });
@@ -664,9 +690,7 @@
     };
 
     function buildCalendarGrids() {
-      // Build July
       buildCalendar("july-grid", 7, 31, 3);
-      // Build August
       buildCalendar("aug-grid", 8, 31, 6);
     }
 

@@ -1,6 +1,6 @@
 const CACHE_NAME = 'prepos-v1';
 const ASSETS = [
-  './dashboard.html',
+  './index.html',
   './manifest.json'
 ];
 

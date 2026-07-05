@@ -1217,7 +1217,7 @@
       }
     }
 
-    // TELEGRAM BOT DISPATCHER
+    // TELEGRAM BOT DISPATCHER (Formatted Markdown Layout)
     function sendTelegramMessage(type, sessionLog = null) {
       if (!TG_TOKEN || !TG_CHAT_ID) return;
 
@@ -1225,9 +1225,9 @@
       const startTime = timerStartDate ? timerStartDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : "";
 
       if (type === "start") {
-        text = `🚀 *Mayank started studying!*\n\n📚 *Topic*: ${getCurrentStudyTopic()}\n⏱️ *Start Time*: ${startTime}\n\n_Timer is running. Let's do this!_`;
+        text = `🚀 *Mayank has started studying!*\n\n📚 *Topic:* ${getCurrentStudyTopic()}\n⏰ *Start Time:* ${startTime}\n\n_Focus mode is active. Let's make this session count!_`;
       } else if (type === "stop" && sessionLog) {
-        text = `✅ *Mayank completed a study session!*\n\n📚 *Topic*: ${sessionLog.topic}\n⏱️ *Duration*: ${sessionLog.duration}\n🧠 *Comfort*: ${sessionLog.ratingLabel || sessionLog.rating}\n💻 *LeetCode Solved*: ${sessionLog.easy} Easy | ${sessionLog.med} Medium | ${sessionLog.hard} Hard\n📝 *Session Notes*: _${sessionLog.notes || "None"}_`;
+        text = `🎯 *Study Session Completed!*\n\n📅 *Date:* ${sessionLog.date}\n📚 *Topic:* ${sessionLog.topic}\n⏱️ *Duration:* ${sessionLog.duration}\n\n💻 *LeetCode Solutions:*\n• 🟢 Easy: ${sessionLog.easy} solved\n• 🟡 Medium: ${sessionLog.med} solved\n• 🔴 Hard: ${sessionLog.hard} solved\n\n🧠 *Comfort:* ${sessionLog.ratingLabel || sessionLog.rating}\n📝 *Session Notes:*\n_${sessionLog.notes || "None"}_`;
       }
 
       const url = `https://api.telegram.org/bot${TG_TOKEN}/sendMessage`;

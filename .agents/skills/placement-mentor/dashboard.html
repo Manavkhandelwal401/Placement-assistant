@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Placement Prep Operating System</title>
+  <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -52,7 +53,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       padding-bottom: 1.5rem;
       border-bottom: 1px solid var(--border);
     }
@@ -93,6 +94,19 @@
       font-size: 0.85rem;
       font-weight: 600;
       border: 1px solid rgba(88, 101, 242, 0.3);
+    }
+
+    .quote-banner {
+      background: var(--accent-glow);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.4;
     }
 
     .dashboard-grid {
@@ -307,6 +321,34 @@
       margin-top: 1rem;
       display: none;
     }
+
+    /* Mobile Responsiveness Rules */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        text-align: center;
+      }
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      .calendar-grid {
+        gap: 0.25rem;
+      }
+      .calendar-day {
+        font-size: 0.7rem;
+        padding: 0.25rem;
+      }
+    }
   </style>
   <script>
     window.onerror = function(msg, url, line) {
@@ -328,10 +370,14 @@
       <p style="color: var(--text-muted); margin-top: 0.25rem;">Customized Day-by-Day Placement Strategy (Sept 1 Target)</p>
     </div>
     <div class="header-actions">
+      <button class="btn" style="display:none;" id="btnInstall">📲 Download App</button>
       <button class="btn" onclick="toggleModal(true)">📅 View Calendar</button>
       <span class="badge">CRT-III Phase Active</span>
     </div>
   </header>
+
+  <!-- Sarcastic Quote Container -->
+  <div class="quote-banner" id="quote-display">Loading motivating sarcasm...</div>
 
   <div class="dashboard-grid">
     <div class="card">
@@ -511,7 +557,33 @@
       { id: "at-abc3", name: "AtCoder Beginner Contest 363", date: "Aug 8", time: "05:30 PM - 07:10 PM", platform: "AtCoder", numericDate: 8.08 }
     ];
 
+    const quotes = [
+      "Padh le beta, warna wasihat par to pehle hi naam nahi hai, nameplate se bhi hat jaayega.",
+      "Offline CRT mein timepass chal raha hai? DSA block miss kiya to pure batch ka entertainment banega.",
+      "Resume par AI/ML likh diya, par binary search time complexity poochte hi system freeze?",
+      "Placement nahi laga to college ke log to kya, mohalle ka doggy bhi ignore karega.",
+      "Instagram reels scroll karne se FAANG ka offer nahi aata. Code status check karo, screen time nahi.",
+      "Aptitude block commute mein miss kar diya? Final round mein speed calculations ke time Java.lang.Panic error run hoga.",
+      "Tier 3 university se ho, thodi to sharam karo, abhi se DSA full force start kar do.",
+      "LeetCode contest registration Yes kiya tha na? Score card dekhkar rank double digits mein aaye, negative integers mein nahi.",
+      "Code run nahi ho raha par phone scroll speed 100mbps chal rahi hai. Sharam karo beta.",
+      "HR poochta hai: 'What are your strengths?' Aur tum wahan dynamic programming ke state definitions ki tarah blank.",
+      "Wasihat mein sirf dukh milne wala hai. Java code compile karo aur CTC bada karo.",
+      "CRT class mein lunch sochna band kar, backend database indexing structure aur pseudocode soch.",
+      "Aaj ka Sliding Window coding block miss kiya? Agla window seedhe college drop-out ya unemployment ka khulega.",
+      "Reels dekhne wale 3 LPA par rote hain, code karne wale 12 LPA lekar direct full power chill karte hain.",
+      "Sarkari naukri ki umeed mat rakhna, general category ka vaise bhi bura haal hai. Code kar lo chupchap.",
+      "Wasihat se be-dakhil hona hai ya placement lagwana hai? Decision tumhara hai."
+    ];
+
     const container = document.getElementById("task-container");
+
+    // Display random quote
+    function displayRandomQuote() {
+      const idx = Math.floor(Math.random() * quotes.length);
+      document.getElementById("quote-display").innerText = "💡 Sarcastic Motivation: " + quotes[idx];
+    }
+    displayRandomQuote();
 
     function loadState() {
       try {
@@ -767,6 +839,35 @@
           </div>
         `;
       }
+    }
+
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Service Worker Registered!', reg))
+        .catch(err => console.log('Service Worker registration failed:', err));
+    }
+
+    // Capture install prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById("btnInstall");
+      if (btn) btn.style.display = 'inline-block';
+    });
+
+    const btnInstall = document.getElementById("btnInstall");
+    if (btnInstall) {
+      btnInstall.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          console.log(`User response to install prompt: ${outcome}`);
+          deferredPrompt = null;
+          btnInstall.style.display = 'none';
+        }
+      });
     }
 
     buildCalendarGrids();

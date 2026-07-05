@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Placement Prep Operating System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090b11;
+      --surface: #121620;
+      --surface-hover: #1b2130;
+      --primary: #5865f2;
+      --primary-glow: rgba(88, 101, 242, 0.15);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.15);
+      --accent: #f59e0b;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --border: rgba(255, 255, 255, 0.08);
+      --font: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .badge {
+      background: var(--primary-glow);
+      color: var(--primary);
+      padding: 0.4rem 0.8rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid rgba(88, 101, 242, 0.3);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .progress-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-bar-container {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 9999px;
+      height: 8px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+
+    .progress-bar {
+      background: linear-gradient(90deg, var(--primary), var(--success));
+      height: 100%;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .task-item:hover {
+      background: var(--surface-hover);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .task-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 2px solid var(--text-muted);
+      cursor: pointer;
+      accent-color: var(--success);
+      margin-top: 0.15rem;
+    }
+
+    .task-content {
+      flex-grow: 1;
+    }
+
+    .task-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .task-date {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .revision-box {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      background: var(--success-glow);
+      border: 1px dashed var(--success);
+      border-radius: 8px;
+      display: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .revision-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--success);
+      margin-bottom: 0.25rem;
+    }
+
+    .revision-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Timetable list styling */
+    .timetable-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+
+    .timetable-time {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .timetable-desc {
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Placement Prep Operating System</h1>
+      <p style="color: var(--text-muted); margin-top: 0.25rem;">Customized Day-by-Day Placement Strategy (Sept 1 Target)</p>
+    </div>
+    <span class="badge">CRT-III Phase Active</span>
+  </header>
+
+  <div class="dashboard-grid">
+    <!-- Left Column: Interactive Tasks -->
+    <div class="card">
+      <div class="progress-section">
+        <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.95rem;">
+          <span>Topic Completion</span>
+          <span id="progress-percent">0%</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+      </div>
+
+      <h2>📚 Daily Master Roadmap & Revision Triggers</h2>
+      <div class="task-list" id="task-container">
+        <!-- JS generates list here -->
+      </div>
+    </div>
+
+    <!-- Right Column: Projects, CS Core & Timetable -->
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+      <!-- Timetable Card -->
+      <div class="card">
+        <h2>⏱️ Daily Timetable</h2>
+        <div class="timetable-item">
+          <span class="timetable-time">08:00 - 09:00</span>
+          <span class="timetable-desc">Commute: Aptitude Prep</span>
+        </div>
+        <div class="timetable-item">
+          <span class="timetable-time">09:00 - 16:30</span>
+          <span class="timetable-desc">College CRT (Focus: GD & Mock)</span>
+        </div>
+        <div class="timetable-item">
+          <span class="timetable-time">16:30 - 17:30</span>
+          <span class="timetable-desc">Commute: CS Core Flashcards</span>
+        </div>
+        <div class="timetable-item">
+          <span class="timetable-time">18:00 - 20:00</span>
+          <span class="timetable-desc">DSA Coding Block</span>
+        </div>
+        <div class="timetable-item">
+          <span class="timetable-time">21:00 - 23:00</span>
+          <span class="timetable-desc">DBMS/OS (Even) | Projects (Odd)</span>
+        </div>
+      </div>
+
+      <!-- Projects & Skills Card -->
+      <div class="card">
+        <h2>🚀 Project & Skill Backlog</h2>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9rem;">
+          <div style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong>BioScout AI</strong>: Fine-tune code & structure on resume.
+          </div>
+          <div style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong>ARIA</strong>: Verify functional modules.
+          </div>
+          <div style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong>Global HRMS</strong>: Standardize repository.
+          </div>
+          <div style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong>SQL / DBMS</strong>: Master queries and indexing.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const roadmap = [
+      { id: "sw", title: "Sliding Window", date: "July 5", desc: "Fixed & Variable Window. Solve LC-3, LC-1004, LC-567." },
+      { id: "tp", title: "Two Pointer & Prefix/Suffix Sum", date: "July 6", desc: "HashMaps + HashSets. Solve LC-1, LC-977, LC-560." },
+      { id: "sort", title: "Sorting", date: "July 7", desc: "Quick Sort / Merge Sort internals and stability." },
+      { id: "matrix", title: "Matrix, ArrayList, StringBuilder", date: "July 8", desc: "2D Array layouts and Java collections optimization." },
+      { id: "pattern", title: "Pattern Matching (Strings)", date: "July 9", desc: "String manipulation, Rabin-Karp or KMP conceptual basics." },
+      { id: "algos", title: "Important Array Algos", date: "July 10", desc: "Dutch National Flag, Boyer-Moore Voting, Kadane's." },
+      { id: "bs", title: "Binary Search", date: "July 11-13", desc: "BS on Search Space and Rotated Arrays." },
+      { id: "ll", title: "Linked List", date: "July 14-16", desc: "Cycle detection, reversals, node deletion." },
+      { id: "sq", title: "Stack & Queue", date: "July 17-20", desc: "Monotonic stacks, LRU Cache simulation." },
+      { id: "heap", title: "Heap & Greedy", date: "July 21-23", desc: "PriorityQueues, Activity Selection, Interval merging." },
+      { id: "tree", title: "Trees & BST", date: "July 24-28", desc: "DFS/BFS Traversals, Lowest Common Ancestor (LCA)." },
+      { id: "recur", title: "Recursion & Backtracking", date: "July 29 - Aug 1", desc: "N-Queens, Subsets, Permutations." },
+      { id: "dp", title: "Dynamic Programming", date: "Aug 2-6", desc: "Knapsack, LIS, LCS, Grid paths." },
+      { id: "graph", title: "Graph", date: "Aug 7-11", desc: "BFS/DFS, Topological Sort, Dijkstra, DSU." },
+      { id: "tries", title: "Tries", date: "Aug 12-15", desc: "Prefix trees, insert, search, prefix match." }
+    ];
+
+    const container = document.getElementById("task-container");
+
+    function loadState() {
+      return JSON.parse(localStorage.getItem("placement_progress")) || {};
+    }
+
+    function saveState(state) {
+      localStorage.setItem("placement_progress", JSON.stringify(state));
+    }
+
+    function renderTasks() {
+      const state = loadState();
+      container.innerHTML = "";
+      let completedCount = 0;
+
+      roadmap.forEach(task => {
+        const checked = state[task.id] ? "checked" : "";
+        if (state[task.id]) completedCount++;
+
+        const taskEl = document.createElement("div");
+        taskEl.className = "task-item";
+        taskEl.innerHTML = `
+          <input type="checkbox" id="${task.id}" ${checked} onchange="toggleTask('${task.id}')">
+          <div class="task-content">
+            <div class="task-title">${task.title}</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">${task.desc}</div>
+            <div class="task-date">${task.date}</div>
+            
+            <div class="revision-box" id="rev-${task.id}" style="display: ${state[task.id] ? 'block' : 'none'};">
+              <div class="revision-title">⏰ Spaced-Repetition Active</div>
+              <div class="revision-desc">• **Revision 1** (July ${parseInt(task.date.replace(/\D/g, '')) + 1 || 'Next Day'})<br>• **Revision 2** (July ${parseInt(task.date.replace(/\D/g, '')) + 3 || '3 Days Later'})<br>• **Revision 3** (July ${parseInt(task.date.replace(/\D/g, '')) + 7 || '7 Days Later'})</div>
+            </div>
+          </div>
+        `;
+        container.appendChild(taskEl);
+      });
+
+      const pct = Math.round((completedCount / roadmap.length) * 100);
+      document.getElementById("progress-percent").innerText = `${pct}%`;
+      document.getElementById("progress-bar").style.width = `${pct}%`;
+    }
+
+    window.toggleTask = function(id) {
+      const state = loadState();
+      state[id] = !state[id];
+      saveState(state);
+      renderTasks();
+    };
+
+    renderTasks();
+  </script>
+</body>
+</html>

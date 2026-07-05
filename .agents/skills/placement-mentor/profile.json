@@ -1,0 +1,87 @@
+{
+  "personal": {
+    "name": "Mayank Khandelwal",
+    "pref_name": "Mayank",
+    "timezone": "Asia/Kolkata",
+    "location": {
+      "country": "India",
+      "state": "Rajasthan",
+      "city": "Jaipur",
+      "preferred_locations": [
+        "Ahmedabad, Vadodara, Noida, Gurugram"
+      ]
+    }
+  },
+  "education": {
+    "college": "JECRC University",
+    "college_tier": "Tier 3",
+    "degree": "Bachelor of Technology",
+    "branch": "Computer Science and Engineering",
+    "current_sem": "7th",
+    "grad_year": "2027",
+    "cgpa": "7.97 ( Upto 5th Semesters) (Waiting for 6th Semester Result)",
+    "tenth_pct": "80%",
+    "twelfth_pct": "77.6%"
+  },
+  "placement": {
+    "placement_strategy": "FAANG-focus",
+    "placement_batch": "2027",
+    "expected_ctc": "8-12 LPA",
+    "minimum_ctc": "6 LPA"
+  },
+  "goals": {
+    "roles": [
+      "Software Engineer"
+    ],
+    "dream_companies": [
+      "FAANG",
+      "Top Product Companies"
+    ],
+    "blacklisted_companies": [
+      "Fake, Fraud Companies, Sales Companies"
+    ]
+  },
+  "background": {
+    "internships": [
+      "No"
+    ],
+    "achievements": [
+      "No"
+    ],
+    "strengths": [
+      "Trying and Trying until Problem is Solved"
+    ]
+  },
+  "skills_baseline": {
+    "communication_level": "Intermediate",
+    "aptitude_level": "Intermediate",
+    "java_level": "Intermediate",
+    "python_level": "Beginner",
+    "sql_level": "Intermediate",
+    "dbms_level": "Intermediate",
+    "os_level": "Intermediate",
+    "cn_level": "Intermediate",
+    "oops_level": "Intermediate",
+    "springboot_level": "Beginner",
+    "system_design_level": "Beginner",
+    "english_level": "Intermediate"
+  },
+  "coding_profiles": {
+    "github_repository": "https://github.com/Manavkhandelwal401/Placement-assistant",
+    "leetcode_profile": "https://leetcode.com/u/n9iHlLyPhB/",
+    "gfg_profile": "https://www.geeksforgeeks.org/profile/manavkhanl1o3",
+    "portfolio": "Not created yet",
+    "resume_drive_location": "https://drive.google.com/file/d/1Z5l_kKzFHMftnfHrGp5KN1Hm2mNvceEP/view?usp=sharing"
+  },
+  "availability": {
+    "daily_study_hours": "4.0 - 5.0 ",
+    "pref_study_time": "6.0 PM - 8:00 PM & 10.0 PM - 12.0 PM",
+    "college_timing": "9:00 AM - 4:30 PM but travel takes 1-1 hours"
+  },
+  "learning_preferences": {
+    "preferred_lang": "English",
+    "explanation_style": "",
+    "preferred_code_lang": "Java",
+    "preferred_interview_language": "Java"
+  }
+}

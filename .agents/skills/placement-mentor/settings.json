@@ -1,0 +1,9 @@
+{
+  "verbosity": "concise",
+  "mentor_personality": "critical-realist",
+  "strictness": "high",
+  "token_mode": "ultra-lean",
+  "reasoning_depth": "medium",
+  "review_frequency": "daily",
+  "reminder_style": "direct-warning"
+}

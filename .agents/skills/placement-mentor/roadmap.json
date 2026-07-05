@@ -1,0 +1,93 @@
+{
+  "meta": {
+    "ready_score": 10.0,
+    "prod_score": 0.0,
+    "placement_readiness_history": []
+  },
+  "backlog": {
+    "commitments": [
+      "Kadane's Algorithm & Array Basics",
+      "Advanced Arrays (Two Pointers & Subarrays)",
+      "Strings & Basic Bit Manipulation",
+      "Binary Search & Advanced Bit Manipulation",
+      "Binary Search on Search Space / 2D & LinkedList Intro",
+      "Advanced LinkedList & Stack Introduction",
+      "Monotonic Stack / Queue & Min-Max Heap",
+      "Advanced Heaps & Sliding Window / Two Pointers",
+      "Binary Trees (Properties & DFS Traversals)",
+      "Advanced Trees (LCA, Paths & BST)",
+      "Graphs (BFS / DFS & Connectivity)",
+      "DSU, Topological Sort & Advanced Graphs",
+      "Inversions, Ordered Set & House Robber DP",
+      "Greedy Algorithms & Grid/Substring DP",
+      "Advanced DP (MCM, Stocks) & Tries",
+      "DAT Day & Full Revision Marathon"
+    ],
+    "unfinished_work": [],
+    "blocked_by": ""
+  },
+  "state": {
+    "active_topic": "Kadane's Algorithm & Array Basics",
+    "active_pattern": "Kadane's Algorithm",
+    "today_plan": "",
+    "tomorrow_plan": "",
+    "weekly_goal": "Complete Days 1 to 7 (Arrays, Strings, BS, LinkedList, and Stack basics)",
+    "monthly_goal": "Complete all 16 days of the FAANG DSA Master Study Plan and top the DAT Exam",
+    "weekly_review": ""
+  },
+  "completed_topics": [],
+  "failed_topics": [],
+  "revision_tracker": [],
+  "contest_history": [],
+  "leetcode_stats": {
+    "solved_count": 0,
+    "solved_by_difficulty": {
+      "easy": 0,
+      "medium": 0,
+      "hard": 0
+    }
+  },
+  "github_stats": {
+    "last_commit_sha": "",
+    "last_commit_date": "",
+    "commit_frequency_week": 0
+  },
+  "project_progress": {
+    "active_project": "",
+    "milestones_completed": [],
+    "pending_tasks": []
+  },
+  "resume_reviews": [],
+  "mock_interviews": [],
+  "company_progress": [],
+  "application_tracker": [],
+  "patterns": {
+    "weak_subjects": [
+      "Recursion",
+      "Dynamic Programming",
+      "Graphs"
+    ],
+    "recurring_mistakes": [
+      "insufficient dry runs",
+      "misses edge cases",
+      "starts coding too early",
+      "weak implementation speed",
+      "revises inconsistently"
+    ],
+    "behavioral_patterns": [
+      "spends too much time optimizing tools before execution",
+      "prefers planning over starting",
+      "avoids weak DSA topics",
+      "consistent once momentum builds",
+      "asks many implementation questions before coding",
+      "benefits from accountability",
+      "performs better with structured roadmaps"
+    ]
+  },
+  "daily_log": [],
+  "current_status": {
+    "priority": "Complete Days 1-7 arrays, strings, and BS basics",
+    "risk": "Time crunch with 16 days of curriculum starting today",
+    "last_session_summary": "Workspace initialized to Day 1 of FAANG study plan."
+  }
+}

@@ -385,6 +385,10 @@
     .form-control:focus {
       outline: 1px solid var(--primary);
     }
+    .form-control option {
+      background-color: var(--surface);
+      color: var(--text);
+    }
 
     .history-item {
       border-bottom: 1px solid var(--border);
@@ -476,7 +480,7 @@
     </div>
 
     <div style="display: flex; flex-direction: column; gap: 2rem;">
-      <!-- Study Controller Timer Card (Clean Layout) -->
+      <!-- Study Controller Timer Card -->
       <div class="card" style="border: 2px solid var(--primary); background: linear-gradient(180deg, var(--surface) 0%, rgba(88, 101, 242, 0.03) 100%); text-align: center;">
         <h2 style="justify-content: center;">⏱️ Study Session Timer</h2>
         <div style="font-size:0.95rem; color: var(--text-muted); margin-top: 0.5rem;">
@@ -648,13 +652,13 @@
         </div>
 
         <div class="form-group" style="margin-bottom:1.5rem;">
-          <label>Topic Understanding (1 - 5 Stars)</label>
+          <label>Topic Understanding & Comfort</label>
           <select class="form-control" id="log-rating">
-            <option value="5">⭐⭐⭐⭐⭐ - Fully Confident</option>
-            <option value="4">⭐⭐⭐⭐ - Good Hold</option>
-            <option value="3" selected>⭐⭐⭐ - Got templates, need practice</option>
-            <option value="2">⭐⭐ - Struggled with edge cases</option>
-            <option value="1">⭐ - Confused / Need to rewatch video</option>
+            <option value="5">⭐⭐⭐⭐⭐ - Sab crystal clear hai, direct solve ho rahe hain</option>
+            <option value="4">⭐⭐⭐⭐ - Concept samajh aa gaya, template ready hai</option>
+            <option value="3" selected>⭐⭐⭐ - Videos dekh liye, dry run mein thoda time lag raha hai</option>
+            <option value="2">⭐⭐ - Edge cases/optimal codes mein crash ho raha hai system</option>
+            <option value="1">⭐ - Kuch dimaag mein nahi ghusa, video firse dekhna padega</option>
           </select>
         </div>
 
@@ -1136,7 +1140,8 @@
       const easy = parseInt(document.getElementById("log-easy").value) || 0;
       const med = parseInt(document.getElementById("log-med").value) || 0;
       const hard = parseInt(document.getElementById("log-hard").value) || 0;
-      const rating = document.getElementById("log-rating").value;
+      const ratingVal = document.getElementById("log-rating").value;
+      const ratingText = document.getElementById("log-rating").options[document.getElementById("log-rating").selectedIndex].text;
       const notes = document.getElementById("log-notes").value;
 
       const durationStr = document.getElementById("timer-text").innerText;
@@ -1148,7 +1153,8 @@
         easy,
         med,
         hard,
-        rating,
+        rating: ratingVal,
+        ratingLabel: ratingText,
         notes
       };
 
@@ -1188,7 +1194,7 @@
               <span style="color:var(--accent);">${log.duration}</span>
             </div>
             <div style="color:var(--text-muted); margin-top:0.25rem;">
-              Understanding: ${starEmoji} | LeetCode: E:${log.easy} M:${log.med} H:${log.hard}
+              Understanding: ${log.ratingLabel || starEmoji} | LeetCode: E:${log.easy} M:${log.med} H:${log.hard}
             </div>
             ${log.notes ? `<div style="font-style:italic; font-size:0.8rem; margin-top:0.25rem;">Notes: ${log.notes}</div>` : ""}
             <div style="margin-top:0.5rem;">
@@ -1221,8 +1227,7 @@
       if (type === "start") {
         text = `🚀 *Mayank started studying!*\n\n📚 *Topic*: ${getCurrentStudyTopic()}\n⏱️ *Start Time*: ${startTime}\n\n_Timer is running. Let's do this!_`;
       } else if (type === "stop" && sessionLog) {
-        const starRating = "⭐".repeat(sessionLog.rating);
-        text = `✅ *Mayank completed a study session!*\n\n📚 *Topic*: ${sessionLog.topic}\n⏱️ *Duration*: ${sessionLog.duration}\n🧠 *Understanding*: ${starRating} (${sessionLog.rating}/5)\n💻 *LeetCode Solved*: ${sessionLog.easy} Easy | ${sessionLog.med} Medium | ${sessionLog.hard} Hard\n📝 *Session Notes*: _${sessionLog.notes || "None"}_`;
+        text = `✅ *Mayank completed a study session!*\n\n📚 *Topic*: ${sessionLog.topic}\n⏱️ *Duration*: ${sessionLog.duration}\n🧠 *Comfort*: ${sessionLog.ratingLabel || sessionLog.rating}\n💻 *LeetCode Solved*: ${sessionLog.easy} Easy | ${sessionLog.med} Medium | ${sessionLog.hard} Hard\n📝 *Session Notes*: _${sessionLog.notes || "None"}_`;
       }
 
       const url = `https://api.telegram.org/bot${TG_TOKEN}/sendMessage`;

@@ -1589,7 +1589,24 @@
     ];
 
     function checkOnboarding() {
-      const profile = localStorage.getItem("phantom_user_profile");
+      const hasHistory = localStorage.getItem("study_history");
+      const hasProgress = localStorage.getItem("placement_progress");
+      let profile = localStorage.getItem("phantom_user_profile");
+      
+      if (!profile && (hasHistory || hasProgress)) {
+        // Auto-generate profile matching Mayank's configuration to prevent data loss or forcing onboarding
+        profile = JSON.stringify({
+          name: "Mayank",
+          targetDate: "Sept 1",
+          collegeHours: "09:00 AM - 04:30 PM (Standard CRT)",
+          commute: "Yes, 1hr commute (Aptitude prep)",
+          language: "Java (DSA)",
+          partner: "Yes, let's set it up",
+          telegramId: "-1004410151416"
+        });
+        localStorage.setItem("phantom_user_profile", profile);
+      }
+
       if (profile) {
         const parsed = JSON.parse(profile);
         TG_TOKEN = "8664422971:AAGu4lS3jDfbgtSf0oHGdHxeS9GG53Vlg_c";

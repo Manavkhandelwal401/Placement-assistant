@@ -86,6 +86,23 @@
       background: #4752c4;
     }
 
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    .btn-success {
+      background: var(--success);
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
     .badge {
       background: var(--primary-glow);
       color: var(--primary);
@@ -322,6 +339,59 @@
       display: none;
     }
 
+    /* Timer card CSS additions */
+    .timer-display {
+      font-size: 2.2rem;
+      font-weight: 700;
+      font-family: monospace;
+      color: var(--text);
+      text-align: center;
+      margin: 1rem 0;
+      letter-spacing: 0.1em;
+    }
+    .pulse-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: var(--success);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.8); opacity: 0.5; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0.8); opacity: 0.5; }
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .form-control {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .form-control:focus {
+      outline: 1px solid var(--primary);
+    }
+
+    .history-item {
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 0;
+      font-size: 0.85rem;
+    }
+
     /* Mobile Responsiveness Rules */
     @media (max-width: 768px) {
       body {
@@ -395,9 +465,44 @@
 
       <h2>📚 Daily Master Roadmap & Revision Triggers</h2>
       <div class="task-list" id="task-container"></div>
+
+      <!-- Study History Collapsible Section -->
+      <div class="card" style="margin-top: 2rem; background: rgba(255,255,255,0.01);">
+        <h2 style="cursor:pointer;" onclick="toggleHistoryCollapse()">📂 Study Session History <span style="font-size:0.8rem; color:var(--text-muted);" id="history-toggle-icon">▼</span></h2>
+        <div id="history-content" style="display:none; margin-top:1rem; max-height: 300px; overflow-y:auto;">
+          <div id="history-list">No study session logs found.</div>
+        </div>
+      </div>
     </div>
 
     <div style="display: flex; flex-direction: column; gap: 2rem;">
+      <!-- Study Controller Timer Card -->
+      <div class="card" style="border: 2px solid var(--primary); background: linear-gradient(180deg, var(--surface) 0%, rgba(88, 101, 242, 0.03) 100%);">
+        <h2>⏱️ Study Session Timer</h2>
+        <div style="font-size:0.9rem; color: var(--text-muted);">
+          Active Topic: <span id="timer-topic" style="color:var(--accent); font-weight:700;">Sliding Window</span>
+        </div>
+        
+        <div class="timer-display" id="timer-text">00:00:00</div>
+
+        <div style="display:flex; gap:0.5rem; justify-content:center; margin-bottom:1rem;">
+          <button class="btn btn-success" id="btn-start" onclick="startTimer()">Start Study</button>
+          <button class="btn" style="background:#ef4444;" id="btn-stop" disabled onclick="stopTimerPrompt()">Stop Study</button>
+        </div>
+
+        <div style="border-top:1px solid var(--border); padding-top: 1rem;">
+          <h3 style="font-size: 0.9rem; margin-bottom: 0.5rem;">Partner Accountability Settings (Mahak)</h3>
+          <div class="form-group">
+            <label>Discord Webhook URL</label>
+            <input type="text" class="form-control" id="settings-webhook" placeholder="Paste Discord Webhook URL" onchange="saveSettings()">
+          </div>
+          <div class="form-group">
+            <label>Mahak's Email (Report Log)</label>
+            <input type="email" class="form-control" id="settings-email" placeholder="mahak@example.com" onchange="saveSettings()">
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <h2>⏱️ Daily Timetable</h2>
         <div class="timetable-item">
@@ -503,6 +608,7 @@
   <!-- Sarcastic Quote Container (Moved to bottom) -->
   <div class="quote-banner" id="quote-display" style="margin-top: 2rem; margin-bottom: 0;">Loading motivating sarcasm...</div>
 
+  <!-- Interactive Calendar Modal -->
   <div class="modal" id="calendarModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -526,6 +632,53 @@
 
       <h3 style="margin-bottom: 0.75rem; font-size: 1.1rem; color: var(--accent);">August 2026</h3>
       <div class="calendar-grid" id="aug-grid"></div>
+    </div>
+  </div>
+
+  <!-- Study Feedback Modal -->
+  <div class="modal" id="feedbackModal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2 style="margin: 0;">📝 Log Study Progress</h2>
+      </div>
+      <div style="margin: 1.5rem 0;">
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;" id="feedback-subtitle">You studied Sliding Window for 00:00:00.</p>
+        
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1rem;">
+          <div class="form-group">
+            <label>Easy Solved</label>
+            <input type="number" class="form-control" id="log-easy" value="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>Medium Solved</label>
+            <input type="number" class="form-control" id="log-med" value="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>Hard Solved</label>
+            <input type="number" class="form-control" id="log-hard" value="0" min="0">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.5rem;">
+          <label>Topic Understanding (1 - 5 Stars)</label>
+          <select class="form-control" id="log-rating">
+            <option value="5">⭐⭐⭐⭐⭐ - Fully Confident</option>
+            <option value="4">⭐⭐⭐⭐ - Good Hold</option>
+            <option value="3" selected>⭐⭐⭐ - Got templates, need practice</option>
+            <option value="2">⭐⭐ - Struggled with edge cases</option>
+            <option value="1">⭐ - Confused / Need to rewatch video</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Session Notes / Checklist</label>
+          <textarea class="form-control" id="log-notes" rows="3" placeholder="Solved LC-3, struggled with LC-1004 variable window condition..."></textarea>
+        </div>
+      </div>
+      <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+        <button class="btn btn-secondary" onclick="closeFeedbackModal(false)">Discard</button>
+        <button class="btn btn-success" onclick="saveStudySession()">Save & Share</button>
+      </div>
     </div>
   </div>
 
@@ -901,8 +1054,231 @@
       });
     }
 
+    // ==========================================
+    // STUDY SESSION TIMER & WEBHOOK FUNCTIONALITY
+    // ==========================================
+    let timerInterval = null;
+    let secondsElapsed = 0;
+    let studyActive = false;
+    let timerStartDate = null;
+
+    // Get Active DSA Topic based on July 5 system starting date rules
+    function getCurrentStudyTopic() {
+      const today = new Date();
+      // Mock system date simulation mapping to our timeline dates
+      // Default to today's topic based on the scheduler
+      const month = today.getMonth() + 1;
+      const date = today.getDate();
+      const topicName = getTopicName(7, 5) || "Sliding Window"; 
+      return topicName;
+    }
+
+    function initTimer() {
+      const topic = getCurrentStudyTopic();
+      document.getElementById("timer-topic").innerText = topic;
+      loadSettings();
+      renderHistory();
+    }
+
+    function saveSettings() {
+      const webhook = document.getElementById("settings-webhook").value;
+      const email = document.getElementById("settings-email").value;
+      localStorage.setItem("timer_settings", JSON.stringify({ webhook, email }));
+    }
+
+    function loadSettings() {
+      const saved = JSON.parse(localStorage.getItem("timer_settings")) || {};
+      if (saved.webhook) document.getElementById("settings-webhook").value = saved.webhook;
+      if (saved.email) document.getElementById("settings-email").value = saved.email;
+    }
+
+    function startTimer() {
+      if (studyActive) return;
+      studyActive = true;
+      secondsElapsed = 0;
+      timerStartDate = new Date();
+      document.getElementById("btn-start").innerText = "Studying...";
+      document.getElementById("btn-start").disabled = true;
+      document.getElementById("btn-stop").disabled = false;
+
+      timerInterval = setInterval(() => {
+        secondsElapsed++;
+        updateTimerDisplay();
+
+        // Scientific Break reminder every 25 mins (1500 secs)
+        if (secondsElapsed % 1500 === 0) {
+          triggerBreakAlert();
+        }
+      }, 1000);
+
+      // Trigger Webhook Notification (Session Start)
+      sendDiscordWebhook("start");
+    }
+
+    function updateTimerDisplay() {
+      const hours = Math.floor(secondsElapsed / 3600);
+      const minutes = Math.floor((secondsElapsed % 3600) / 60);
+      const secs = secondsElapsed % 60;
+      
+      const pad = (num) => String(num).padStart(2, '0');
+      document.getElementById("timer-text").innerText = `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
+    }
+
+    function triggerBreakAlert() {
+      // Dynamic advice based on morning/night
+      const hour = new Date().getHours();
+      let advice = "";
+      if (hour >= 6 && hour < 18) {
+        advice = "💡 Scientific break: Take a 5-min walk, do deep breathing outside, grab a glass of water.";
+      } else {
+        advice = "💡 Scientific break: Wash your face with cold water, stretch your back/neck, avoid looking at any phone screens to prevent brain fatigue.";
+      }
+
+      // Browser push notification if permission allowed
+      if (Notification.permission === "granted") {
+        new Notification("🚨 Time for a Scientific Break!", { body: advice });
+      } else {
+        alert("🚨 Time for a Break!\n\n" + advice);
+      }
+    }
+
+    function stopTimerPrompt() {
+      if (!studyActive) return;
+      clearInterval(timerInterval);
+      studyActive = false;
+
+      // Update feedback modal details
+      document.getElementById("feedback-subtitle").innerText = `You studied ${getCurrentStudyTopic()} for ${document.getElementById("timer-text").innerText}.`;
+      document.getElementById("feedbackModal").style.display = "flex";
+    }
+
+    function closeFeedbackModal(save) {
+      document.getElementById("feedbackModal").style.display = "none";
+      document.getElementById("btn-start").innerText = "Start Study";
+      document.getElementById("btn-start").disabled = false;
+      document.getElementById("btn-stop").disabled = true;
+      document.getElementById("timer-text").innerText = "00:00:00";
+      secondsElapsed = 0;
+    }
+
+    function saveStudySession() {
+      const easy = parseInt(document.getElementById("log-easy").value) || 0;
+      const med = parseInt(document.getElementById("log-med").value) || 0;
+      const hard = parseInt(document.getElementById("log-hard").value) || 0;
+      const rating = document.getElementById("log-rating").value;
+      const notes = document.getElementById("log-notes").value;
+
+      const durationStr = document.getElementById("timer-text").innerText;
+
+      const sessionLog = {
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        topic: getCurrentStudyTopic(),
+        duration: durationStr,
+        easy,
+        med,
+        hard,
+        rating,
+        notes
+      };
+
+      // Save to localStorage list
+      let logs = JSON.parse(localStorage.getItem("study_history")) || [];
+      logs.unshift(sessionLog);
+      localStorage.setItem("study_history", JSON.stringify(logs));
+
+      // Trigger Webhook Notification (Session End)
+      sendDiscordWebhook("stop", sessionLog);
+
+      // Clean inputs
+      document.getElementById("log-easy").value = "0";
+      document.getElementById("log-med").value = "0";
+      document.getElementById("log-hard").value = "0";
+      document.getElementById("log-rating").value = "3";
+      document.getElementById("log-notes").value = "";
+
+      renderHistory();
+      closeFeedbackModal(true);
+    }
+
+    function renderHistory() {
+      const logs = JSON.parse(localStorage.getItem("study_history")) || [];
+      const historyList = document.getElementById("history-list");
+      if (logs.length === 0) {
+        historyList.innerHTML = "No study session logs found.";
+        return;
+      }
+
+      historyList.innerHTML = logs.map((log, index) => {
+        const starEmoji = "⭐".repeat(log.rating);
+        const waText = encodeURIComponent(`📢 Mayank's Study Update:\nTopic: ${log.topic}\nDuration: ${log.duration}\nEasy/Med/Hard Solved: ${log.easy}/${log.med}/${log.hard}\nUnderstanding: ${log.rating}/5\nNotes: ${log.notes}`);
+        
+        return `
+          <div class="history-item">
+            <div style="display:flex; justify-content:space-between; font-weight:600;">
+              <span>📅 ${log.date} - ${log.topic}</span>
+              <span style="color:var(--accent);">${log.duration}</span>
+            </div>
+            <div style="color:var(--text-muted); margin-top:0.25rem;">
+              Understanding: ${starEmoji} | LeetCode: E:${log.easy} M:${log.med} H:${log.hard}
+            </div>
+            ${log.notes ? `<div style="font-style:italic; font-size:0.8rem; margin-top:0.25rem;">Notes: ${log.notes}</div>` : ""}
+            <div style="margin-top:0.5rem;">
+              <a href="https://wa.me/?text=${waText}" target="_blank" class="btn btn-secondary" style="font-size:0.75rem; padding:0.2rem 0.5rem; display:inline-block; text-decoration:none;">📲 Share to WhatsApp</a>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function toggleHistoryCollapse() {
+      const content = document.getElementById("history-content");
+      const icon = document.getElementById("history-toggle-icon");
+      if (content.style.display === "none") {
+        content.style.display = "block";
+        icon.innerText = "▲";
+      } else {
+        content.style.display = "none";
+        icon.innerText = "▼";
+      }
+    }
+
+    // DISCORD WEBHOOK INTEGRATION
+    function sendDiscordWebhook(type, sessionLog = null) {
+      const saved = JSON.parse(localStorage.getItem("timer_settings")) || {};
+      const webhookUrl = saved.webhook;
+      if (!webhookUrl) return; // Silent if no Webhook URL is set
+
+      let payload = {};
+      const startTime = timerStartDate ? timerStartDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : "";
+
+      if (type === "start") {
+        payload = {
+          content: `🚀 **Mayank started studying!**\n📚 **Topic**: ${getCurrentStudyTopic()}\n⏱️ **Start Time**: ${startTime}\n*Timer is running. Let's grind!*`
+        };
+      } else if (type === "stop" && sessionLog) {
+        const starRating = "⭐".repeat(sessionLog.rating);
+        payload = {
+          content: `✅ **Mayank completed a study session!**\n📚 **Topic**: ${sessionLog.topic}\n⏱️ **Duration**: ${sessionLog.duration}\n🧠 **Understanding**: ${starRating} (${sessionLog.rating}/5)\n💻 **LeetCode Solved**: ${sessionLog.easy} Easy | ${sessionLog.med} Medium | ${sessionLog.hard} Hard\n📝 **Session Notes**: *${sessionLog.notes || "None"}*`
+        };
+      }
+
+      fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(res => console.log("Accountability Webhook Sent!", res))
+      .catch(err => console.error("Webhook Delivery Failed:", err));
+    }
+
+    // Request browser notification permissions on load
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+      Notification.requestPermission();
+    }
+
     buildCalendarGrids();
     renderTasks();
+    initTimer();
   </script>
 </body>
 </html>

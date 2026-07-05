@@ -376,9 +376,6 @@
     </div>
   </header>
 
-  <!-- Sarcastic Quote Container -->
-  <div class="quote-banner" id="quote-display">Loading motivating sarcasm...</div>
-
   <div class="dashboard-grid">
     <div class="card">
       <div class="progress-section">
@@ -497,6 +494,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Sarcastic Quote Container (Moved to bottom) -->
+  <div class="quote-banner" id="quote-display" style="margin-top: 2rem; margin-bottom: 0;">Loading motivating sarcasm...</div>
 
   <div class="modal" id="calendarModal">
     <div class="modal-content">
@@ -637,6 +637,7 @@
       return parseFloat(`${month}.${newDay < 10 ? '0' + newDay : newDay}`);
     }
 
+    // Rest of script continues ...
     function formatNumericDate(num) {
       const month = Math.floor(num) === 7 ? "July" : "Aug";
       const day = Math.round((num % 1) * 100);

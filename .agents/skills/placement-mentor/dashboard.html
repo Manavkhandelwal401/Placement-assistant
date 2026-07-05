@@ -15,6 +15,7 @@
       --success: #10b981;
       --success-glow: rgba(16, 185, 129, 0.15);
       --accent: #f59e0b;
+      --accent-glow: rgba(245, 158, 11, 0.1);
       --text: #f3f4f6;
       --text-muted: #9ca3af;
       --border: rgba(255, 255, 255, 0.08);
@@ -119,6 +120,11 @@
       transition: all 0.2s ease;
     }
 
+    .task-item.revision-item {
+      border: 1px dashed var(--accent);
+      background: var(--accent-glow);
+    }
+
     .task-item:hover {
       background: var(--surface-hover);
       border-color: rgba(255, 255, 255, 0.15);
@@ -149,29 +155,6 @@
       color: var(--text-muted);
     }
 
-    .revision-box {
-      margin-top: 0.75rem;
-      padding: 0.75rem;
-      background: var(--success-glow);
-      border: 1px dashed var(--success);
-      border-radius: 8px;
-      display: none;
-      animation: fadeIn 0.4s ease forwards;
-    }
-
-    .revision-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--success);
-      margin-bottom: 0.25rem;
-    }
-
-    .revision-desc {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    /* Timetable list styling */
     .timetable-item {
       display: flex;
       justify-content: space-between;
@@ -190,9 +173,11 @@
       text-align: right;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+    .sub-timeline {
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-left: auto;
     }
   </style>
 </head>
@@ -210,7 +195,7 @@
     <div class="card">
       <div class="progress-section">
         <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.95rem;">
-          <span>Topic Completion</span>
+          <span>Core Topic Completion</span>
           <span id="progress-percent">0%</span>
         </div>
         <div class="progress-bar-container">
@@ -220,7 +205,7 @@
 
       <h2>📚 Daily Master Roadmap & Revision Triggers</h2>
       <div class="task-list" id="task-container">
-        <!-- JS generates list here -->
+        <!-- Generated dynamically -->
       </div>
     </div>
 
@@ -251,21 +236,57 @@
         </div>
       </div>
 
-      <!-- Projects & Skills Card -->
+      <!-- Projects Card -->
       <div class="card">
-        <h2>🚀 Project & Skill Backlog</h2>
-        <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9rem;">
-          <div style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong>BioScout AI</strong>: Fine-tune code & structure on resume.
+        <h2>🚀 Projects Timeline</h2>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+          <div style="padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; gap: 0.25rem;">
+            <div style="display: flex; justify-content: space-between; font-weight: 600;">
+              <span>BioScout AI (Resume Lock)</span>
+              <span class="sub-timeline">July 10 - 22</span>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Fine-tune codebase, optimize keywords for applicant tracking systems.</span>
           </div>
-          <div style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong>ARIA</strong>: Verify functional modules.
+          <div style="padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; gap: 0.25rem;">
+            <div style="display: flex; justify-content: space-between; font-weight: 600;">
+              <span>ARIA Project</span>
+              <span class="sub-timeline">July 23 - Aug 5</span>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Complete functional blocks and finish README.</span>
           </div>
-          <div style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong>Global HRMS</strong>: Standardize repository.
+          <div style="padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; gap: 0.25rem;">
+            <div style="display: flex; justify-content: space-between; font-weight: 600;">
+              <span>Global HRMS</span>
+              <span class="sub-timeline">Aug 6 - 18</span>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Review repository hygiene, standardise code patterns.</span>
           </div>
-          <div style="padding: 0.5rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong>SQL / DBMS</strong>: Master queries and indexing.
+        </div>
+      </div>
+
+      <!-- Skills Card -->
+      <div class="card">
+        <h2>💻 CS Core Skills Timeline</h2>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+            <span>SQL Fundamentals</span>
+            <span class="sub-timeline">July 6 - 12</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+            <span>DBMS Core Concepts</span>
+            <span class="sub-timeline">July 13 - 20</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+            <span>Operating Systems (OS)</span>
+            <span class="sub-timeline">July 21 - 30</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+            <span>Computer Networks (CN)</span>
+            <span class="sub-timeline">July 31 - Aug 8</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+            <span>Linux & Git Basics</span>
+            <span class="sub-timeline">Aug 9 - 15</span>
           </div>
         </div>
       </div>
@@ -273,22 +294,22 @@
   </div>
 
   <script>
-    const roadmap = [
-      { id: "sw", title: "Sliding Window", date: "July 5", desc: "Fixed & Variable Window. Solve LC-3, LC-1004, LC-567." },
-      { id: "tp", title: "Two Pointer & Prefix/Suffix Sum", date: "July 6", desc: "HashMaps + HashSets. Solve LC-1, LC-977, LC-560." },
-      { id: "sort", title: "Sorting", date: "July 7", desc: "Quick Sort / Merge Sort internals and stability." },
-      { id: "matrix", title: "Matrix, ArrayList, StringBuilder", date: "July 8", desc: "2D Array layouts and Java collections optimization." },
-      { id: "pattern", title: "Pattern Matching (Strings)", date: "July 9", desc: "String manipulation, Rabin-Karp or KMP conceptual basics." },
-      { id: "algos", title: "Important Array Algos", date: "July 10", desc: "Dutch National Flag, Boyer-Moore Voting, Kadane's." },
-      { id: "bs", title: "Binary Search", date: "July 11-13", desc: "BS on Search Space and Rotated Arrays." },
-      { id: "ll", title: "Linked List", date: "July 14-16", desc: "Cycle detection, reversals, node deletion." },
-      { id: "sq", title: "Stack & Queue", date: "July 17-20", desc: "Monotonic stacks, LRU Cache simulation." },
-      { id: "heap", title: "Heap & Greedy", date: "July 21-23", desc: "PriorityQueues, Activity Selection, Interval merging." },
-      { id: "tree", title: "Trees & BST", date: "July 24-28", desc: "DFS/BFS Traversals, Lowest Common Ancestor (LCA)." },
-      { id: "recur", title: "Recursion & Backtracking", date: "July 29 - Aug 1", desc: "N-Queens, Subsets, Permutations." },
-      { id: "dp", title: "Dynamic Programming", date: "Aug 2-6", desc: "Knapsack, LIS, LCS, Grid paths." },
-      { id: "graph", title: "Graph", date: "Aug 7-11", desc: "BFS/DFS, Topological Sort, Dijkstra, DSU." },
-      { id: "tries", title: "Tries", date: "Aug 12-15", desc: "Prefix trees, insert, search, prefix match." }
+    const primaryTopics = [
+      { id: "sw", title: "Sliding Window", date: "July 5", desc: "Fixed & Variable Window. Solve LC-3, LC-1004, LC-567.", numericDate: 7.05 },
+      { id: "tp", title: "Two Pointer & Prefix/Suffix Sum", date: "July 6", desc: "HashMaps + HashSets. Solve LC-1, LC-977, LC-560.", numericDate: 7.06 },
+      { id: "sort", title: "Sorting", date: "July 7", desc: "Quick Sort / Merge Sort internals.", numericDate: 7.07 },
+      { id: "matrix", title: "Matrix, ArrayList, StringBuilder", date: "July 8", desc: "2D Array layouts and collections optimization.", numericDate: 7.08 },
+      { id: "pattern", title: "Pattern Matching (Strings)", date: "July 9", desc: "String manipulation and matching algos.", numericDate: 7.09 },
+      { id: "algos", title: "Important Array Algos", date: "July 10", desc: "Dutch National Flag, Boyer-Moore, Kadane's.", numericDate: 7.10 },
+      { id: "bs", title: "Binary Search", date: "July 11", desc: "BS on Search Space and Rotated Arrays.", numericDate: 7.11 },
+      { id: "ll", title: "Linked List", date: "July 14", desc: "Cycle detection, reversals, deletion.", numericDate: 7.14 },
+      { id: "sq", title: "Stack & Queue", date: "July 17", desc: "Monotonic stacks, queue simulation.", numericDate: 7.17 },
+      { id: "heap", title: "Heap & Greedy", date: "July 21", desc: "PriorityQueues, Activity Selection.", numericDate: 7.21 },
+      { id: "tree", title: "Trees & BST", date: "July 24", desc: "DFS/BFS Traversals, LCA logic.", numericDate: 7.24 },
+      { id: "recur", title: "Recursion & Backtracking", date: "July 29", desc: "N-Queens, Subsets, Permutations.", numericDate: 7.29 },
+      { id: "dp", title: "Dynamic Programming", date: "Aug 2", desc: "Knapsack, LIS, LCS, Grid paths.", numericDate: 8.02 },
+      { id: "graph", title: "Graph", date: "Aug 7", desc: "Topological Sort, Dijkstra, DSU.", numericDate: 8.07 },
+      { id: "tries", title: "Tries", date: "Aug 12", desc: "Prefix trees, insert, search.", numericDate: 8.12 }
     ];
 
     const container = document.getElementById("task-container");
@@ -301,34 +322,99 @@
       localStorage.setItem("placement_progress", JSON.stringify(state));
     }
 
+    function addDays(baseDate, days) {
+      let d = baseDate < 8 ? Math.round((baseDate - 7) * 100) : Math.round((baseDate - 8) * 100);
+      let month = baseDate < 8 ? 7 : 8;
+      let newDay = d + days;
+      
+      let daysInMonth = month === 7 ? 31 : 31;
+      if (newDay > daysInMonth) {
+        newDay = newDay - daysInMonth;
+        month = 8;
+      }
+      return parseFloat(`${month}.${newDay < 10 ? '0' + newDay : newDay}`);
+    }
+
+    function formatNumericDate(num) {
+      const month = Math.floor(num) === 7 ? "July" : "Aug";
+      const day = Math.round((num % 1) * 100);
+      return `${month} ${day}`;
+    }
+
     function renderTasks() {
       const state = loadState();
       container.innerHTML = "";
-      let completedCount = 0;
 
-      roadmap.forEach(task => {
-        const checked = state[task.id] ? "checked" : "";
-        if (state[task.id]) completedCount++;
+      let allItems = [];
 
-        const taskEl = document.createElement("div");
-        taskEl.className = "task-item";
-        taskEl.innerHTML = `
-          <input type="checkbox" id="${task.id}" ${checked} onchange="toggleTask('${task.id}')">
-          <div class="task-content">
-            <div class="task-title">${task.title}</div>
-            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">${task.desc}</div>
-            <div class="task-date">${task.date}</div>
-            
-            <div class="revision-box" id="rev-${task.id}" style="display: ${state[task.id] ? 'block' : 'none'};">
-              <div class="revision-title">⏰ Spaced-Repetition Active</div>
-              <div class="revision-desc">• **Revision 1** (July ${parseInt(task.date.replace(/\D/g, '')) + 1 || 'Next Day'})<br>• **Revision 2** (July ${parseInt(task.date.replace(/\D/g, '')) + 3 || '3 Days Later'})<br>• **Revision 3** (July ${parseInt(task.date.replace(/\D/g, '')) + 7 || '7 Days Later'})</div>
-            </div>
-          </div>
-        `;
-        container.appendChild(taskEl);
+      // Add all primary topics
+      primaryTopics.forEach(topic => {
+        allItems.push({
+          id: topic.id,
+          title: topic.title,
+          desc: topic.desc,
+          date: topic.date,
+          numericDate: topic.numericDate,
+          isRevision: false
+        });
+
+        // If completed, spawn dynamic revision items
+        if (state[topic.id]) {
+          const r1Date = addDays(topic.numericDate, 1);
+          const r2Date = addDays(topic.numericDate, 3);
+          const r3Date = addDays(topic.numericDate, 7);
+
+          allItems.push({
+            id: `${topic.id}-rev1`,
+            title: `🔄 ${topic.title} - Revision 1 (1d)`,
+            desc: `Quick review of core template logic and solved problems.`,
+            date: formatNumericDate(r1Date),
+            numericDate: r1Date,
+            isRevision: true
+          });
+
+          allItems.push({
+            id: `${topic.id}-rev2`,
+            title: `🔄 ${topic.title} - Revision 2 (3d)`,
+            desc: `Dry-run edge cases and resolve 1 new problem on this topic.`,
+            date: formatNumericDate(r2Date),
+            numericDate: r2Date,
+            isRevision: true
+          });
+
+          allItems.push({
+            id: `${topic.id}-rev3`,
+            title: `🔄 ${topic.title} - Revision 3 (7d)`,
+            desc: `Final speed-test verify matching OA questions.`,
+            date: formatNumericDate(r3Date),
+            numericDate: r3Date,
+            isRevision: true
+          });
+        }
       });
 
-      const pct = Math.round((completedCount / roadmap.length) * 100);
+      // Sort chronologically by numericDate
+      allItems.sort((a, b) => a.numericDate - b.numericDate);
+
+      let primaryCompleted = 0;
+      allItems.forEach(item => {
+        const checked = state[item.id] ? "checked" : "";
+        if (!item.isRevision && state[item.id]) primaryCompleted++;
+
+        const itemEl = document.createElement("div");
+        itemEl.className = `task-item ${item.isRevision ? 'revision-item' : ''}`;
+        itemEl.innerHTML = `
+          <input type="checkbox" id="${item.id}" ${checked} onchange="toggleTask('${item.id}')">
+          <div class="task-content">
+            <div class="task-title">${item.title}</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">${item.desc}</div>
+            <div class="task-date">${item.date}</div>
+          </div>
+        `;
+        container.appendChild(itemEl);
+      });
+
+      const pct = Math.round((primaryCompleted / primaryTopics.length) * 100);
       document.getElementById("progress-percent").innerText = `${pct}%`;
       document.getElementById("progress-bar").style.width = `${pct}%`;
     }

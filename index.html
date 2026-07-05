@@ -271,6 +271,85 @@
       overflow-y: auto;
     }
 
+    .custom-tabs {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+    }
+
+    .custom-tab {
+      background: rgba(255,255,255,0.06);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .custom-tab.active {
+      background: var(--primary-glow);
+      color: var(--primary);
+      border-color: rgba(88, 101, 242, 0.35);
+    }
+
+    .custom-editor-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-height: 55vh;
+      overflow-y: auto;
+      padding-right: 0.25rem;
+    }
+
+    .custom-row {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      background: rgba(255,255,255,0.02);
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .custom-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.65rem;
+    }
+
+    .custom-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    .mini-btn {
+      padding: 0.3rem 0.55rem;
+      font-size: 0.78rem;
+      border-radius: 6px;
+    }
+
+    #undo-bar {
+      display: none;
+      position: fixed;
+      left: 20px;
+      bottom: 20px;
+      z-index: 10000;
+      max-width: min(460px, calc(100vw - 40px));
+      background: var(--surface-hover);
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      padding: 0.75rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+      align-items: center;
+      gap: 0.75rem;
+    }
+
     .modal-header {
       display: flex;
       justify-content: space-between;
@@ -453,6 +532,38 @@
       align-self: flex-end;
     }
 
+    .widget-chat-bubble p {
+      margin: 0 0 0.45rem;
+    }
+
+    .widget-chat-bubble p:last-child,
+    .widget-chat-bubble li:last-child {
+      margin-bottom: 0;
+    }
+
+    .widget-chat-bubble ul,
+    .widget-chat-bubble ol {
+      margin: 0.35rem 0 0.45rem 1rem;
+      padding-left: 0.8rem;
+    }
+
+    .widget-chat-bubble li {
+      margin-bottom: 0.3rem;
+    }
+
+    .widget-chat-bubble strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .widget-chat-bubble code {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      padding: 0.05rem 0.25rem;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.92em;
+    }
+
     /* Mobile Responsiveness Rules */
     @media (max-width: 768px) {
       body {
@@ -471,6 +582,15 @@
       .dashboard-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
+      }
+      .custom-grid {
+        grid-template-columns: 1fr;
+      }
+      #undo-bar {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        max-width: none;
       }
       .calendar-grid {
         gap: 0.25rem;
@@ -502,6 +622,11 @@
 
   <!-- Toast Container -->
   <div id="toast-container" style="position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; pointer-events:none;"></div>
+  <div id="undo-bar">
+    <span id="undo-text" style="font-size:0.9rem; color:var(--text); flex:1;">Change saved.</span>
+    <button class="btn mini-btn" onclick="undoLastCustomization()">Undo</button>
+    <button class="btn btn-secondary mini-btn" onclick="hideUndoBar()">Dismiss</button>
+  </div>
 
   <!-- Onboarding Panel -->
   <div id="app-onboarding" style="display: none; min-height: 90vh; flex-direction: column; justify-content: center; align-items: center; padding: 1rem; width: 100%;">
@@ -525,6 +650,7 @@
       </div>
       <div class="header-actions">
         <button class="btn" style="display:none;" id="btnInstall">📲 Download App</button>
+        <button class="btn btn-secondary" onclick="openCustomizeModal('profile')">⚙️ Customize</button>
         <button class="btn" onclick="toggleModal(true)">📅 View Calendar</button>
         <span class="badge" id="target-badge">CRT-III Phase Active</span>
       </div>
@@ -581,7 +707,7 @@
 
         <div class="card">
           <h2>🚀 Projects Timeline</h2>
-          <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+          <div id="projects-timeline-list" style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
             <div style="padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px;">
               <div style="display: flex; justify-content: space-between; font-weight: 600;">
                 <span>BioScout AI (Resume Lock)</span>
@@ -605,7 +731,7 @@
 
         <div class="card">
           <h2>💻 CS Core & Dev Skills Timeline</h2>
-          <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+          <div id="skills-timeline-list" style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
             <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
               <span>SQL Fundamentals</span>
               <span class="sub-timeline">July 6 - 12</span>
@@ -639,7 +765,7 @@
 
         <div class="card">
           <h2>🗣️ Interviews & Soft Skills Prep</h2>
-          <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+          <div id="interview-timeline-list" style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
             <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
               <span>GD (Group Discussion Practice)</span>
               <span class="sub-timeline">July 6 - 18</span>
@@ -671,7 +797,7 @@
         <span style="font-weight: 700; color: var(--primary);">👻 Phantom Mentor</span>
         <div style="display: flex; gap: 0.25rem;">
           <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: var(--success-glow); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3);" onclick="setGeminiKey()">🔑 Key</button>
-          <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.3);" onclick="resetProfileFromChat()">✏️ Profile</button>
+          <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(245, 158, 11, 0.3);" onclick="openCustomizeModal('profile')">✏️ Edit</button>
           <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem;" onclick="toggleWidgetChat()">Close</button>
         </div>
       </div>
@@ -761,6 +887,30 @@
     </div>
   </div>
 
+  <!-- Customization Modal -->
+  <div class="modal" id="customizeModal">
+    <div class="modal-content">
+      <div class="modal-header" style="margin-bottom:0;">
+        <div>
+          <h2 style="margin:0;">⚙️ Customize Dashboard</h2>
+          <p style="color:var(--text-muted); margin-top:0.35rem; font-size:0.9rem;">Choose what you want to change, save it, and undo if needed. Changes stay in this browser only.</p>
+        </div>
+        <button class="btn btn-secondary" onclick="closeCustomizeModal()">Close</button>
+      </div>
+
+      <div class="custom-tabs">
+        <button class="custom-tab" data-custom-tab="profile" onclick="openCustomizeTab('profile')">Profile</button>
+        <button class="custom-tab" data-custom-tab="roadmap" onclick="openCustomizeTab('roadmap')">Roadmap</button>
+        <button class="custom-tab" data-custom-tab="calendar" onclick="openCustomizeTab('calendar')">Calendar</button>
+        <button class="custom-tab" data-custom-tab="timetable" onclick="openCustomizeTab('timetable')">Timetable</button>
+        <button class="custom-tab" data-custom-tab="timelines" onclick="openCustomizeTab('timelines')">Other Cards</button>
+        <button class="custom-tab" data-custom-tab="quotes" onclick="openCustomizeTab('quotes')">Quotes</button>
+      </div>
+
+      <div id="customize-content"></div>
+    </div>
+  </div>
+
   <script>
     const primaryTopics = [
       { id: "sw", title: "Sliding Window", date: "July 5", desc: "Fixed & Variable Window. Solve LC-3, LC-1004, LC-567.", numericDate: 7.05 },
@@ -779,6 +929,7 @@
       { id: "graph", title: "Graph", date: "Aug 8 - 13", desc: "Topological Sort, Dijkstra, DSU.", numericDate: 8.08 },
       { id: "tries", title: "Tries", date: "Aug 14 - 15", desc: "Prefix trees, insert, search.", numericDate: 8.14 }
     ];
+    const defaultPrimaryTopics = cloneData(primaryTopics);
 
     const quotes = [
       "Haath se hi manage kar raha hai? Pehle naukri laga le.",
@@ -824,10 +975,114 @@
       "Pyar-mohabbat ka runtime error jab aayega, tab memory leak ki tarah time aur career dono drain honge tere.",
       "Sept 1 ko placement lag gaya toh life double-buffered chalegi, warna single-thread mein bas uski shaadi ke status dekhoge."
     ];
+    const defaultQuotes = cloneData(quotes);
+    const cleanQuotes = [
+      "Small consistent wins beat one heroic study day.",
+      "Do the next high-quality problem, then review the mistake pattern.",
+      "Focus on templates, dry runs, and clean explanations.",
+      "A calm mind solves more edge cases than a rushed one.",
+      "One honest revision today saves panic in the interview.",
+      "Protect your schedule. Your future self is counting on this block."
+    ];
+
+    const customKeys = {
+      topics: "phantom_custom_topics",
+      quotes: "phantom_custom_quotes",
+      contests: "phantom_custom_contests",
+      calendar: "phantom_custom_calendar",
+      timetable: "phantom_custom_timetable",
+      projects: "phantom_custom_projects",
+      skills: "phantom_custom_skills",
+      interviews: "phantom_custom_interviews",
+      profile: "phantom_user_profile"
+    };
+
+    let activeCustomizeTab = "profile";
+    let undoSnapshot = null;
+    let undoTimer = null;
+
+    function cloneData(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function loadStoredArray(key, fallback) {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(key));
+        return Array.isArray(parsed) ? parsed : cloneData(fallback);
+      } catch (e) {
+        return cloneData(fallback);
+      }
+    }
+
+    function saveStoredArray(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function replaceArray(target, source) {
+      target.splice(0, target.length, ...cloneData(source));
+    }
+
+    function snapshotKeys(keys) {
+      return keys.reduce((acc, key) => {
+        acc[key] = localStorage.getItem(key);
+        return acc;
+      }, {});
+    }
+
+    function restoreSnapshot(snapshot) {
+      Object.entries(snapshot || {}).forEach(([key, value]) => {
+        if (value === null) {
+          localStorage.removeItem(key);
+        } else {
+          localStorage.setItem(key, value);
+        }
+      });
+      hydrateEditableData();
+      refreshDashboardViews();
+      renderCustomizeTab(activeCustomizeTab);
+    }
+
+    function showUndo(label, snapshot) {
+      undoSnapshot = snapshot;
+      const bar = document.getElementById("undo-bar");
+      const text = document.getElementById("undo-text");
+      if (!bar || !text) return;
+      text.innerText = `${label} saved. Undo available for 45 seconds.`;
+      bar.style.display = "flex";
+      clearTimeout(undoTimer);
+      undoTimer = setTimeout(hideUndoBar, 45000);
+    }
+
+    window.hideUndoBar = function() {
+      const bar = document.getElementById("undo-bar");
+      if (bar) bar.style.display = "none";
+      undoSnapshot = null;
+      clearTimeout(undoTimer);
+    };
+
+    window.undoLastCustomization = function() {
+      if (!undoSnapshot) return;
+      restoreSnapshot(undoSnapshot);
+      hideUndoBar();
+      showToast("Undo complete", "Your previous dashboard state is back.", "toast-success");
+    };
+
+    function withUndo(label, keys, action) {
+      const before = snapshotKeys(keys);
+      action();
+      showUndo(label, before);
+    }
+
+    replaceArray(primaryTopics, loadStoredArray(customKeys.topics, defaultPrimaryTopics));
+    replaceArray(quotes, loadStoredArray(customKeys.quotes, defaultQuotes));
 
     const container = document.getElementById("task-container");
 
     function displayRandomQuote() {
+      if (!quotes.length) {
+        document.getElementById("quote-display").innerText = "Quotes disabled. Add one from Customize > Quotes whenever you want.";
+        return;
+      }
       const idx = Math.floor(Math.random() * quotes.length);
       document.getElementById("quote-display").innerText = quotes[idx];
     }
@@ -865,10 +1120,21 @@
       return `${month} ${day}`;
     }
 
-    function renderTasks() {
-      const state = loadState();
-      container.innerHTML = "";
+    function getTodayInfo() {
+      const now = new Date();
+      const month = now.getMonth() + 1;
+      const day = now.getDate();
+      return {
+        now,
+        month,
+        day,
+        numericDate: parseFloat(`${month}.${day < 10 ? '0' + day : day}`),
+        dateText: now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }),
+        timeText: now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+      };
+    }
 
+    function getAllStudyItems(state = loadState()) {
       let allItems = [];
 
       primaryTopics.forEach(topic => {
@@ -889,7 +1155,7 @@
           allItems.push({
             id: `${topic.id}-rev1`,
             title: `🔄 ${topic.title} - Revision 1 (1d)`,
-            desc: `Quick review of core template logic and solved problems.`,
+            desc: topic.rev1Desc || `Quick review of core template logic and solved problems.`,
             date: formatNumericDate(r1Date),
             numericDate: r1Date,
             isRevision: true
@@ -898,7 +1164,7 @@
           allItems.push({
             id: `${topic.id}-rev2`,
             title: `🔄 ${topic.title} - Revision 2 (3d)`,
-            desc: `Dry-run edge cases and resolve 1 new problem on this topic.`,
+            desc: topic.rev2Desc || `Dry-run edge cases and resolve 1 new problem on this topic.`,
             date: formatNumericDate(r2Date),
             numericDate: r2Date,
             isRevision: true
@@ -907,7 +1173,7 @@
           allItems.push({
             id: `${topic.id}-rev3`,
             title: `🔄 ${topic.title} - Revision 3 (7d)`,
-            desc: `Final speed-test verify matching OA questions.`,
+            desc: topic.rev3Desc || `Final speed-test verify matching OA questions.`,
             date: formatNumericDate(r3Date),
             numericDate: r3Date,
             isRevision: true
@@ -916,6 +1182,14 @@
       });
 
       allItems.sort((a, b) => a.numericDate - b.numericDate);
+      return allItems;
+    }
+
+    function renderTasks() {
+      const state = loadState();
+      container.innerHTML = "";
+
+      const allItems = getAllStudyItems(state);
 
       let primaryCompleted = 0;
       allItems.forEach(item => {
@@ -927,15 +1201,15 @@
         itemEl.innerHTML = `
           <input type="checkbox" id="${item.id}" ${checked} onchange="toggleTask('${item.id}')">
           <div class="task-content">
-            <div class="task-title">${item.title}</div>
-            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">${item.desc}</div>
-            <div class="task-date">${item.date}</div>
+            <div class="task-title">${escapeHtml(item.title)}</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem;">${escapeHtml(item.desc)}</div>
+            <div class="task-date">${escapeHtml(item.date)}</div>
           </div>
         `;
         container.appendChild(itemEl);
       });
 
-      const pct = Math.round((primaryCompleted / primaryTopics.length) * 100);
+      const pct = primaryTopics.length ? Math.round((primaryCompleted / primaryTopics.length) * 100) : 0;
       document.getElementById("progress-percent").innerText = `${pct}%`;
       document.getElementById("progress-bar").style.width = `${pct}%`;
     }
@@ -951,7 +1225,7 @@
       document.getElementById("calendarModal").style.display = show ? "flex" : "none";
     };
 
-    function getTopicClass(month, day) {
+    function getDefaultTopicClass(month, day) {
       if (month === 7) {
         if (day >= 1 && day <= 10) return "bg-arrays";
         if (day >= 11 && day <= 13) return "bg-bs";
@@ -969,7 +1243,7 @@
       return "";
     }
 
-    function getTopicName(month, day) {
+    function getDefaultTopicName(month, day) {
       if (month === 7) {
         if (day >= 1 && day <= 10) return "Arrays";
         if (day >= 11 && day <= 13) return "BSearch";
@@ -987,6 +1261,39 @@
       return "";
     }
 
+    function createDefaultCalendarLabels() {
+      const items = [];
+      [
+        { month: 7, days: 31 },
+        { month: 8, days: 31 }
+      ].forEach(({ month, days }) => {
+        for (let day = 1; day <= days; day++) {
+          const label = getDefaultTopicName(month, day);
+          if (!label) continue;
+          items.push({
+            id: `cal-${month}-${day}`,
+            numericDate: parseFloat(`${month}.${day < 10 ? '0' + day : day}`),
+            label,
+            className: getDefaultTopicClass(month, day)
+          });
+        }
+      });
+      return items;
+    }
+
+    function getCalendarEntry(month, day) {
+      const numDate = parseFloat(`${month}.${day < 10 ? '0' + day : day}`);
+      return calendarLabels.find(item => Number(item.numericDate) === numDate);
+    }
+
+    function getTopicClass(month, day) {
+      return getCalendarEntry(month, day)?.className || "";
+    }
+
+    function getTopicName(month, day) {
+      return getCalendarEntry(month, day)?.label || "";
+    }
+
     // Contests Schedule (July & August 2026)
     const contests = [
       { id: "lc-w1", name: "LeetCode Weekly Contest 501", date: "July 5", time: "08:00 AM - 09:30 AM", platform: "LeetCode", numericDate: 7.05 },
@@ -1000,9 +1307,96 @@
       { id: "lc-w4", name: "LeetCode Weekly Contest 504", date: "July 26", time: "08:00 AM - 09:30 AM", platform: "LeetCode", numericDate: 7.26 },
       { id: "at-abc3", name: "AtCoder Beginner Contest 363", date: "Aug 8", time: "05:30 PM - 07:10 PM", platform: "AtCoder", numericDate: 8.08 }
     ];
+    const defaultContests = cloneData(contests);
+    const defaultCalendarLabels = createDefaultCalendarLabels();
+    let calendarLabels = loadStoredArray(customKeys.calendar, defaultCalendarLabels);
+
+    const defaultProjects = [
+      { title: "BioScout AI (Resume Lock)", range: "July 10 - 22" },
+      { title: "ARIA Project", range: "July 23 - Aug 5" },
+      { title: "Global HRMS", range: "Aug 6 - 18" }
+    ];
+
+    const defaultSkills = [
+      { title: "SQL Fundamentals", range: "July 6 - 12" },
+      { title: "DBMS Core Concepts", range: "July 13 - 20" },
+      { title: "Operating Systems (OS)", range: "July 21 - 30" },
+      { title: "Computer Networks (CN)", range: "July 31 - Aug 6" },
+      { title: "Linux & Git Basics", range: "Aug 7 - 11" },
+      { title: "Python & Django (Backend)", range: "Aug 12 - 18" },
+      { title: "JavaScript & UI Basics", range: "Aug 19 - 22" }
+    ];
+
+    const defaultInterviews = [
+      { title: "GD (Group Discussion Practice)", range: "July 6 - 18" },
+      { title: "PI (Personal Interview Prep)", range: "Aug 20 - 24" },
+      { title: "Tech & HR Mock Interviews", range: "Aug 25 - 31" }
+    ];
+
+    let projectTimeline = loadStoredArray(customKeys.projects, defaultProjects);
+    let skillsTimeline = loadStoredArray(customKeys.skills, defaultSkills);
+    let interviewTimeline = loadStoredArray(customKeys.interviews, defaultInterviews);
+    replaceArray(contests, loadStoredArray(customKeys.contests, defaultContests));
+
+    function hydrateEditableData() {
+      replaceArray(primaryTopics, loadStoredArray(customKeys.topics, defaultPrimaryTopics));
+      replaceArray(quotes, loadStoredArray(customKeys.quotes, defaultQuotes));
+      replaceArray(contests, loadStoredArray(customKeys.contests, defaultContests));
+      calendarLabels = loadStoredArray(customKeys.calendar, defaultCalendarLabels);
+      projectTimeline = loadStoredArray(customKeys.projects, defaultProjects);
+      skillsTimeline = loadStoredArray(customKeys.skills, defaultSkills);
+      interviewTimeline = loadStoredArray(customKeys.interviews, defaultInterviews);
+    }
+
+    function getProfileData() {
+      try {
+        return JSON.parse(localStorage.getItem(customKeys.profile)) || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function refreshDashboardViews() {
+      renderTasks();
+      buildCalendarGrids();
+      renderTimelineCards();
+      displayRandomQuote();
+      const timerTopic = document.getElementById("timer-topic");
+      if (timerTopic) timerTopic.innerText = getCurrentStudyTopic();
+      const profile = getProfileData();
+      if (Object.keys(profile).length) initDashboardWithProfile(profile);
+    }
+
+    function renderTimelineCards() {
+      renderTimelineList("projects-timeline-list", projectTimeline, true);
+      renderTimelineList("skills-timeline-list", skillsTimeline);
+      renderTimelineList("interview-timeline-list", interviewTimeline);
+    }
+
+    function renderTimelineList(elementId, items, boxed = false) {
+      const list = document.getElementById(elementId);
+      if (!list) return;
+      if (!items.length) {
+        list.innerHTML = `<div style="color:var(--text-muted);">No items. Add one from Customize.</div>`;
+        return;
+      }
+
+      list.innerHTML = items.map(item => {
+        const content = `
+          <div style="display:flex; justify-content:space-between; gap:1rem; font-weight:600;">
+            <span>${escapeHtml(item.title)}</span>
+            <span class="sub-timeline">${escapeHtml(item.range)}</span>
+          </div>
+        `;
+
+        return boxed
+          ? `<div style="padding:0.75rem; border:1px solid var(--border); border-radius:8px;">${content}</div>`
+          : `<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:0.5rem; gap:1rem;"><span>${escapeHtml(item.title)}</span><span class="sub-timeline">${escapeHtml(item.range)}</span></div>`;
+      }).join("");
+    }
 
     function isPastContest(c) {
-      const today = 7.05; // Base system date: July 5th
+      const today = getTodayInfo().numericDate;
       if (c.numericDate < today) return true;
       if (c.numericDate === today) {
         return true;
@@ -1050,8 +1444,8 @@
 
           contestsEl.innerHTML += `
             <div style="border-top: 1px solid var(--border); padding-top: 0.5rem; margin-top: 0.5rem;">
-              <strong>Contest:</strong> ${c.name} (${c.platform})<br>
-              <strong>Time:</strong> ${c.time}<br>
+              <strong>Contest:</strong> ${escapeHtml(c.name)} (${escapeHtml(c.platform)})<br>
+              <strong>Time:</strong> ${escapeHtml(c.time)}<br>
               <strong>Status/Registered:</strong> ${statusText}
               ${buttonHtml}
             </div>
@@ -1097,7 +1491,7 @@
         grid.innerHTML += `
           <div class="calendar-day ${cls} ${hasCont ? 'has-contest' : ''}" onclick="showDayDetails(${month}, ${day})">
             <div>${day}</div>
-            <div style="font-size: 0.65rem; text-align: right; opacity: 0.9;">${name}</div>
+            <div style="font-size: 0.65rem; text-align: right; opacity: 0.9;">${escapeHtml(name)}</div>
           </div>
         `;
       }
@@ -1106,8 +1500,19 @@
     // PWA Service Worker Registration
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js')
-        .then(reg => console.log('Service Worker Registered!', reg))
+        .then(reg => {
+          console.log('Service Worker Registered!', reg);
+          reg.update();
+          if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+        })
         .catch(err => console.log('Service Worker registration failed:', err));
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
     }
 
     let deferredPrompt;
@@ -1279,8 +1684,18 @@
 
     function getCurrentStudyTopic() {
       const today = new Date();
-      const topicName = getTopicName(7, 5) || "Sliding Window"; 
-      return topicName;
+      const month = today.getMonth() + 1;
+      const day = today.getDate();
+      const calendarTopic = getTopicName(month, day);
+      if (calendarTopic) return calendarTopic;
+
+      const numericToday = parseFloat(`${month}.${day < 10 ? '0' + day : day}`);
+      const activeTopic = [...primaryTopics]
+        .sort((a, b) => Number(a.numericDate) - Number(b.numericDate))
+        .filter(topic => Number(topic.numericDate) <= numericToday)
+        .pop();
+
+      return activeTopic?.title || primaryTopics[0]?.title || "Study Block";
     }
 
     function initTimer() {
@@ -1779,10 +2194,10 @@
       document.getElementById("dashboard-subtitle").innerText = `Customized Day-by-Day Placement Strategy (${profile.targetDate || 'Sept 1'} Target)`;
       document.getElementById("target-badge").innerText = `Target: ${profile.targetDate || 'Sept 1'}`;
 
-      // Build Dynamic Timetable
-      const list = document.getElementById("timetable-list");
-      list.innerHTML = "";
+      renderTimetableItems(getTimetableItems(profile));
+    }
 
+    function getDefaultTimetableItems(profile = {}) {
       let items = [];
       if (profile.commute && profile.commute.includes("1hr")) {
         items.push({ time: "08:00 - 09:00", desc: "Commute: Aptitude Prep" });
@@ -1804,14 +2219,640 @@
       // Main study blocks
       items.push({ time: "18:30 - 20:30", desc: `DSA Coding Block (${profile.language || 'Java'})` });
       items.push({ time: "21:30 - 23:30", desc: "DBMS/OS Core | Projects Focus" });
+      return items;
+    }
+
+    function getTimetableItems(profile = {}) {
+      const customItems = loadStoredArray(customKeys.timetable, []);
+      return customItems.length ? customItems : getDefaultTimetableItems(profile);
+    }
+
+    function renderTimetableItems(items) {
+      const list = document.getElementById("timetable-list");
+      if (!list) return;
+      list.innerHTML = "";
 
       list.innerHTML = items.map(item => `
         <div class="timetable-item">
-          <span class="timetable-time">${item.time}</span>
-          <span class="timetable-desc">${item.desc}</span>
+          <span class="timetable-time">${escapeHtml(item.time)}</span>
+          <span class="timetable-desc">${escapeHtml(item.desc)}</span>
         </div>
       `).join("");
     }
+
+    // Dashboard customization editor
+    const calendarClassOptions = [
+      ["", "No color"],
+      ["bg-arrays", "Arrays"],
+      ["bg-bs", "Binary Search"],
+      ["bg-ll", "Linked List"],
+      ["bg-sq", "Stack/Queue"],
+      ["bg-heap", "Heap/Greedy"],
+      ["bg-trees", "Trees"],
+      ["bg-recur", "Recursion"],
+      ["bg-dp", "DP"],
+      ["bg-graph", "Graph"],
+      ["bg-tries", "Tries"]
+    ];
+
+    function sanitizeId(value, fallback) {
+      const base = String(value || fallback || "item").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      return base || `item-${Date.now()}`;
+    }
+
+    function shortCalendarLabel(title) {
+      const clean = String(title || "").replace(/[^\w\s/&+-]/g, "").trim();
+      if (!clean) return "Study";
+      const words = clean.split(/\s+/);
+      return words.length <= 2 ? clean.slice(0, 14) : words.slice(0, 2).join(" ").slice(0, 14);
+    }
+
+    function inferCalendarClass(topic) {
+      const haystack = `${topic.id || ""} ${topic.title || ""}`.toLowerCase();
+      if (haystack.includes("binary") || haystack.includes("bs")) return "bg-bs";
+      if (haystack.includes("linked") || haystack.includes("list")) return "bg-ll";
+      if (haystack.includes("stack") || haystack.includes("queue")) return "bg-sq";
+      if (haystack.includes("heap") || haystack.includes("greedy")) return "bg-heap";
+      if (haystack.includes("tree") || haystack.includes("bst")) return "bg-trees";
+      if (haystack.includes("recursion") || haystack.includes("backtracking")) return "bg-recur";
+      if (haystack.includes("dp") || haystack.includes("dynamic")) return "bg-dp";
+      if (haystack.includes("graph")) return "bg-graph";
+      if (haystack.includes("trie")) return "bg-tries";
+      return "bg-arrays";
+    }
+
+    function monthNameToNumber(monthName) {
+      const normalized = String(monthName || "").toLowerCase();
+      if (normalized.startsWith("jul")) return 7;
+      if (normalized.startsWith("aug")) return 8;
+      return null;
+    }
+
+    function numericDateFromParts(month, day) {
+      return parseFloat(`${month}.${day < 10 ? '0' + day : day}`);
+    }
+
+    function datePartsFromNumeric(numericDate) {
+      const month = Math.floor(Number(numericDate));
+      const day = Math.round((Number(numericDate) % 1) * 100);
+      return { month, day };
+    }
+
+    function addOneDay(month, day) {
+      const current = new Date(2026, month - 1, day);
+      current.setDate(current.getDate() + 1);
+      return { month: current.getMonth() + 1, day: current.getDate() };
+    }
+
+    function expandTopicDateRange(topic) {
+      const dateText = String(topic.date || "");
+      const match = dateText.match(/(July|Aug(?:ust)?)\s*(\d{1,2})(?:\s*-\s*(?:(July|Aug(?:ust)?)\s*)?(\d{1,2}))?/i);
+      if (!match) return [Number(topic.numericDate)].filter(Boolean);
+
+      const startMonth = monthNameToNumber(match[1]);
+      const startDay = Number(match[2]);
+      const endMonth = monthNameToNumber(match[3]) || startMonth;
+      const endDay = Number(match[4]) || startDay;
+      if (!startMonth || !startDay || !endMonth || !endDay) return [Number(topic.numericDate)].filter(Boolean);
+
+      const dates = [];
+      let cursor = { month: startMonth, day: startDay };
+      const endNumeric = numericDateFromParts(endMonth, endDay);
+      let guard = 0;
+      while (numericDateFromParts(cursor.month, cursor.day) <= endNumeric && guard < 70) {
+        dates.push(numericDateFromParts(cursor.month, cursor.day));
+        cursor = addOneDay(cursor.month, cursor.day);
+        guard++;
+      }
+      return dates.length ? dates : [Number(topic.numericDate)].filter(Boolean);
+    }
+
+    function syncCalendarLabelsFromTopics(topics) {
+      const defaultDates = new Map(defaultCalendarLabels.map(item => [Number(item.numericDate), item.label]));
+      const byDate = new Map(
+        calendarLabels
+          .filter(item => item.source !== "roadmap")
+          .filter(item => !(defaultDates.has(Number(item.numericDate)) && defaultDates.get(Number(item.numericDate)) === item.label))
+          .map(item => [Number(item.numericDate), { ...item }])
+      );
+      topics.forEach(topic => {
+        expandTopicDateRange(topic).forEach(numericDate => {
+          if (!numericDate) return;
+          const existing = byDate.get(numericDate) || {};
+          byDate.set(numericDate, {
+            id: existing.id || `cal-${numericDate}`,
+            numericDate,
+            label: shortCalendarLabel(topic.title),
+            className: existing.className || inferCalendarClass(topic),
+            source: "roadmap"
+          });
+        });
+      });
+      calendarLabels = [...byDate.values()].sort((a, b) => Number(a.numericDate) - Number(b.numericDate));
+      saveStoredArray(customKeys.calendar, calendarLabels);
+    }
+
+    function inputValue(row, name) {
+      return row.querySelector(`[name="${name}"]`)?.value.trim() || "";
+    }
+
+    function field(label, name, value = "", type = "text") {
+      const step = type === "number" ? ' step="0.01"' : "";
+      return `<label>${label}<input class="form-control" name="${name}" type="${type}" value="${escapeHtml(value)}"${step}></label>`;
+    }
+
+    function textField(label, name, value = "", rows = 2) {
+      return `<label>${label}<textarea class="form-control" name="${name}" rows="${rows}">${escapeHtml(value)}</textarea></label>`;
+    }
+
+    function classSelect(value = "") {
+      return `<label>Color<select class="form-control" name="className">${calendarClassOptions.map(([key, label]) => `<option value="${key}" ${key === value ? "selected" : ""}>${label}</option>`).join("")}</select></label>`;
+    }
+
+    window.openCustomizeModal = function(tab = "profile") {
+      document.getElementById("customizeModal").style.display = "flex";
+      openCustomizeTab(tab);
+    };
+
+    window.closeCustomizeModal = function() {
+      document.getElementById("customizeModal").style.display = "none";
+    };
+
+    window.openCustomizeTab = function(tab) {
+      activeCustomizeTab = tab;
+      document.querySelectorAll(".custom-tab").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.customTab === tab);
+      });
+      renderCustomizeTab(tab);
+    };
+
+    function renderCustomizeTab(tab) {
+      const content = document.getElementById("customize-content");
+      if (!content) return;
+      if (tab === "profile") renderProfileEditor(content);
+      if (tab === "roadmap") renderRoadmapEditor(content);
+      if (tab === "calendar") renderCalendarEditor(content);
+      if (tab === "timetable") renderTimetableEditor(content);
+      if (tab === "timelines") renderTimelinesEditor(content);
+      if (tab === "quotes") renderQuotesEditor(content);
+    }
+
+    function rowControls() {
+      return `
+        <div class="custom-actions" style="margin-top:0;">
+          <button class="btn btn-secondary mini-btn" onclick="moveCustomRow(this, -1)">Up</button>
+          <button class="btn btn-secondary mini-btn" onclick="moveCustomRow(this, 1)">Down</button>
+          <button class="btn mini-btn" style="background:#ef4444;" onclick="deleteCustomRow(this)">Delete</button>
+        </div>
+      `;
+    }
+
+    window.moveCustomRow = function(button, direction) {
+      const row = button.closest(".custom-row");
+      if (!row) return;
+      if (direction < 0 && row.previousElementSibling) {
+        row.parentElement.insertBefore(row, row.previousElementSibling);
+      }
+      if (direction > 0 && row.nextElementSibling) {
+        row.parentElement.insertBefore(row.nextElementSibling, row);
+      }
+    };
+
+    window.deleteCustomRow = function(button) {
+      button.closest(".custom-row")?.remove();
+    };
+
+    function renderProfileEditor(content) {
+      const profile = getProfileData();
+      content.innerHTML = `
+        <div class="custom-row">
+          <div class="custom-grid">
+            ${field("Name", "name", profile.name || "")}
+            ${field("Target Date", "targetDate", profile.targetDate || "Sept 1")}
+            ${field("College/CRT Hours", "collegeHours", profile.collegeHours || "")}
+            ${field("Commute", "commute", profile.commute || "")}
+            ${field("DSA Language", "language", profile.language || "")}
+            ${field("Telegram Chat ID", "telegramId", profile.telegramId || "")}
+          </div>
+          <div class="custom-actions">
+            <button class="btn btn-secondary" onclick="restartOnboardingFromCustomize()">Restart Full Onboarding</button>
+            <button class="btn" onclick="saveProfileEditor()">Save Profile</button>
+          </div>
+        </div>
+      `;
+    }
+
+    window.saveProfileEditor = function() {
+      const row = document.querySelector("#customize-content .custom-row");
+      const previous = getProfileData();
+      const next = {
+        ...previous,
+        name: inputValue(row, "name") || "Mayank",
+        targetDate: inputValue(row, "targetDate") || "Sept 1",
+        collegeHours: inputValue(row, "collegeHours"),
+        commute: inputValue(row, "commute"),
+        language: inputValue(row, "language"),
+        telegramId: inputValue(row, "telegramId") || "none"
+      };
+
+      withUndo("Profile", [customKeys.profile], () => {
+        localStorage.setItem(customKeys.profile, JSON.stringify(next));
+        initDashboardWithProfile(next);
+      });
+      renderCustomizeTab("profile");
+    };
+
+    window.restartOnboardingFromCustomize = function() {
+      if (!confirm("Restart onboarding and edit the full profile flow? Your progress logs stay saved.")) return;
+      withUndo("Profile reset", [customKeys.profile], () => {
+        localStorage.removeItem(customKeys.profile);
+        closeCustomizeModal();
+        checkOnboarding();
+      });
+    };
+
+    function topicRow(topic = {}, index = 0) {
+      return `
+        <div class="custom-row" data-topic-row>
+          <div class="custom-grid">
+            ${field("Topic Title", "title", topic.title || "")}
+            ${field("Display Date", "date", topic.date || "")}
+            ${field("Numeric Date (7.05 / 8.02)", "numericDate", topic.numericDate || "", "number")}
+            ${field("Topic ID", "id", topic.id || `topic-${index + 1}`)}
+          </div>
+          ${textField("Description / Problems", "desc", topic.desc || "")}
+          <div class="custom-grid">
+            ${textField("Revision 1 text", "rev1Desc", topic.rev1Desc || "Quick review of core template logic and solved problems.")}
+            ${textField("Revision 2 text", "rev2Desc", topic.rev2Desc || "Dry-run edge cases and resolve 1 new problem on this topic.")}
+          </div>
+          ${textField("Revision 3 text", "rev3Desc", topic.rev3Desc || "Final speed-test verify matching OA questions.")}
+          ${rowControls()}
+        </div>
+      `;
+    }
+
+    function renderRoadmapEditor(content) {
+      content.innerHTML = `
+        <div class="custom-editor-list" id="custom-topic-list">
+          ${primaryTopics.map(topicRow).join("")}
+        </div>
+        <div class="custom-actions">
+          <button class="btn btn-secondary" onclick="addTopicRow()">Add Topic</button>
+          <button class="btn btn-secondary" onclick="resetRoadmapDefaults()">Reset Roadmap</button>
+          <button class="btn" onclick="saveRoadmapEditor()">Save Roadmap</button>
+        </div>
+      `;
+    }
+
+    window.addTopicRow = function() {
+      document.getElementById("custom-topic-list").insertAdjacentHTML("beforeend", topicRow({
+        id: `topic-${Date.now()}`,
+        title: "New Topic",
+        date: "July 5",
+        desc: "Add problems or notes here.",
+        numericDate: 7.05
+      }, primaryTopics.length));
+    };
+
+    function readTopicRows() {
+      return [...document.querySelectorAll("#custom-topic-list [data-topic-row]")].map((row, index) => {
+        const title = inputValue(row, "title") || `Topic ${index + 1}`;
+        return {
+          id: sanitizeId(inputValue(row, "id"), title),
+          title,
+          date: inputValue(row, "date") || "July 5",
+          desc: inputValue(row, "desc"),
+          numericDate: parseFloat(inputValue(row, "numericDate")) || 7.05,
+          rev1Desc: inputValue(row, "rev1Desc"),
+          rev2Desc: inputValue(row, "rev2Desc"),
+          rev3Desc: inputValue(row, "rev3Desc")
+        };
+      });
+    }
+
+    window.saveRoadmapEditor = function() {
+      withUndo("Roadmap", [customKeys.topics, customKeys.calendar], () => {
+        const nextTopics = readTopicRows();
+        saveStoredArray(customKeys.topics, nextTopics);
+        hydrateEditableData();
+        syncCalendarLabelsFromTopics(nextTopics);
+        hydrateEditableData();
+        refreshDashboardViews();
+      });
+      renderCustomizeTab("roadmap");
+    };
+
+    window.resetRoadmapDefaults = function() {
+      withUndo("Roadmap reset", [customKeys.topics], () => {
+        localStorage.removeItem(customKeys.topics);
+        hydrateEditableData();
+        refreshDashboardViews();
+      });
+      renderCustomizeTab("roadmap");
+    };
+
+    function calendarRow(item = {}) {
+      return `
+        <div class="custom-row" data-calendar-row>
+          <div class="custom-grid">
+            ${field("Numeric Date (7.05 / 8.02)", "numericDate", item.numericDate || "", "number")}
+            ${field("Calendar Label", "label", item.label || "")}
+            ${classSelect(item.className || "")}
+          </div>
+          ${rowControls()}
+        </div>
+      `;
+    }
+
+    function contestRow(item = {}, index = 0) {
+      return `
+        <div class="custom-row" data-contest-row>
+          <div class="custom-grid">
+            ${field("Contest Name", "name", item.name || "")}
+            ${field("Platform", "platform", item.platform || "")}
+            ${field("Date Text", "date", item.date || "")}
+            ${field("Time", "time", item.time || "")}
+            ${field("Numeric Date", "numericDate", item.numericDate || "", "number")}
+            ${field("Contest ID", "id", item.id || `contest-${index + 1}`)}
+          </div>
+          ${rowControls()}
+        </div>
+      `;
+    }
+
+    function renderCalendarEditor(content) {
+      content.innerHTML = `
+        <h3 style="margin:0 0 0.75rem;">Day Topic Labels</h3>
+        <div class="custom-editor-list" id="custom-calendar-list">
+          ${calendarLabels.map(calendarRow).join("")}
+        </div>
+        <div class="custom-actions">
+          <button class="btn btn-secondary" onclick="addCalendarRow()">Add Day Label</button>
+        </div>
+        <h3 style="margin:1.25rem 0 0.75rem;">Contests</h3>
+        <div class="custom-editor-list" id="custom-contest-list">
+          ${contests.map(contestRow).join("")}
+        </div>
+        <div class="custom-actions">
+          <button class="btn btn-secondary" onclick="addContestRow()">Add Contest</button>
+          <button class="btn btn-secondary" onclick="resetCalendarDefaults()">Reset Calendar</button>
+          <button class="btn" onclick="saveCalendarEditor()">Save Calendar</button>
+        </div>
+      `;
+    }
+
+    window.addCalendarRow = function() {
+      document.getElementById("custom-calendar-list").insertAdjacentHTML("beforeend", calendarRow({
+        numericDate: 7.05,
+        label: "New Topic",
+        className: "bg-arrays"
+      }));
+    };
+
+    window.addContestRow = function() {
+      document.getElementById("custom-contest-list").insertAdjacentHTML("beforeend", contestRow({
+        id: `contest-${Date.now()}`,
+        name: "New Contest",
+        platform: "LeetCode",
+        date: "July 5",
+        time: "08:00 PM",
+        numericDate: 7.05
+      }, contests.length));
+    };
+
+    function readCalendarRows() {
+      return [...document.querySelectorAll("#custom-calendar-list [data-calendar-row]")]
+        .map(row => ({
+          id: `cal-${inputValue(row, "numericDate")}`,
+          numericDate: parseFloat(inputValue(row, "numericDate")) || 7.05,
+          label: inputValue(row, "label"),
+          className: inputValue(row, "className")
+        }))
+        .filter(item => item.label);
+    }
+
+    function readContestRows() {
+      return [...document.querySelectorAll("#custom-contest-list [data-contest-row]")]
+        .map((row, index) => {
+          const name = inputValue(row, "name") || `Contest ${index + 1}`;
+          return {
+            id: sanitizeId(inputValue(row, "id"), name),
+            name,
+            platform: inputValue(row, "platform") || "Contest",
+            date: inputValue(row, "date"),
+            time: inputValue(row, "time"),
+            numericDate: parseFloat(inputValue(row, "numericDate")) || 7.05
+          };
+        });
+    }
+
+    window.saveCalendarEditor = function() {
+      withUndo("Calendar", [customKeys.calendar, customKeys.contests], () => {
+        saveStoredArray(customKeys.calendar, readCalendarRows());
+        saveStoredArray(customKeys.contests, readContestRows());
+        hydrateEditableData();
+        refreshDashboardViews();
+      });
+      renderCustomizeTab("calendar");
+    };
+
+    window.resetCalendarDefaults = function() {
+      withUndo("Calendar reset", [customKeys.calendar, customKeys.contests], () => {
+        localStorage.removeItem(customKeys.calendar);
+        localStorage.removeItem(customKeys.contests);
+        hydrateEditableData();
+        refreshDashboardViews();
+      });
+      renderCustomizeTab("calendar");
+    };
+
+    function timetableRow(item = {}) {
+      return `
+        <div class="custom-row" data-timetable-row>
+          <div class="custom-grid">
+            ${field("Time", "time", item.time || "")}
+            ${field("Description", "desc", item.desc || "")}
+          </div>
+          ${rowControls()}
+        </div>
+      `;
+    }
+
+    function renderTimetableEditor(content) {
+      const profile = getProfileData();
+      content.innerHTML = `
+        <div class="custom-editor-list" id="custom-timetable-list">
+          ${getTimetableItems(profile).map(timetableRow).join("")}
+        </div>
+        <div class="custom-actions">
+          <button class="btn btn-secondary" onclick="addTimetableRow()">Add Time Block</button>
+          <button class="btn btn-secondary" onclick="resetTimetableDefaults()">Use Profile Timetable</button>
+          <button class="btn" onclick="saveTimetableEditor()">Save Timetable</button>
+        </div>
+      `;
+    }
+
+    window.addTimetableRow = function() {
+      document.getElementById("custom-timetable-list").insertAdjacentHTML("beforeend", timetableRow({
+        time: "18:00 - 19:00",
+        desc: "New study block"
+      }));
+    };
+
+    function readTimetableRows() {
+      return [...document.querySelectorAll("#custom-timetable-list [data-timetable-row]")]
+        .map(row => ({ time: inputValue(row, "time"), desc: inputValue(row, "desc") }))
+        .filter(item => item.time || item.desc);
+    }
+
+    window.saveTimetableEditor = function() {
+      withUndo("Timetable", [customKeys.timetable], () => {
+        saveStoredArray(customKeys.timetable, readTimetableRows());
+        hydrateEditableData();
+        refreshDashboardViews();
+      });
+      renderCustomizeTab("timetable");
+    };
+
+    window.resetTimetableDefaults = function() {
+      withUndo("Timetable reset", [customKeys.timetable], () => {
+        localStorage.removeItem(customKeys.timetable);
+        hydrateEditableData();
+        refreshDashboardViews();
+      });
+      renderCustomizeTab("timetable");
+    };
+
+    function timelineRow(item = {}) {
+      return `
+        <div class="custom-row" data-timeline-row>
+          <div class="custom-grid">
+            ${field("Title", "title", item.title || "")}
+            ${field("Date/Range", "range", item.range || "")}
+          </div>
+          ${rowControls()}
+        </div>
+      `;
+    }
+
+    function timelineSection(id, title, items) {
+      return `
+        <h3 style="margin:1rem 0 0.75rem;">${title}</h3>
+        <div class="custom-editor-list" id="${id}">
+          ${items.map(timelineRow).join("")}
+        </div>
+        <div class="custom-actions" style="margin-bottom:0.75rem;">
+          <button class="btn btn-secondary mini-btn" onclick="addTimelineRow('${id}')">Add Item</button>
+        </div>
+      `;
+    }
+
+    function renderTimelinesEditor(content) {
+      content.innerHTML = `
+        ${timelineSection("custom-projects-list", "Projects", projectTimeline)}
+        ${timelineSection("custom-skills-list", "CS Core & Dev Skills", skillsTimeline)}
+        ${timelineSection("custom-interviews-list", "Interview Prep", interviewTimeline)}
+        <div class="custom-actions">
+          <button class="btn btn-secondary" onclick="resetTimelinesDefaults()">Reset Other Cards</button>
+          <button class="btn" onclick="saveTimelinesEditor()">Save Other Cards</button>
+        </div>
+      `;
+    }
+
+    window.addTimelineRow = function(listId) {
+      document.getElementById(listId).insertAdjacentHTML("beforeend", timelineRow({
+        title: "New Item",
+        range: "July 5 - 7"
+      }));
+    };
+
+    function readTimelineRows(listId) {
+      return [...document.querySelectorAll(`#${listId} [data-timeline-row]`)]
+        .map(row => ({ title: inputValue(row, "title"), range: inputValue(row, "range") }))
+        .filter(item => item.title || item.range);
+    }
+
+    window.saveTimelinesEditor = function() {
+      withUndo("Other cards", [customKeys.projects, customKeys.skills, customKeys.interviews], () => {
+        saveStoredArray(customKeys.projects, readTimelineRows("custom-projects-list"));
+        saveStoredArray(customKeys.skills, readTimelineRows("custom-skills-list"));
+        saveStoredArray(customKeys.interviews, readTimelineRows("custom-interviews-list"));
+        hydrateEditableData();
+        refreshDashboardViews();
+      });
+      renderCustomizeTab("timelines");
+    };
+
+    window.resetTimelinesDefaults = function() {
+      withUndo("Other cards reset", [customKeys.projects, customKeys.skills, customKeys.interviews], () => {
+        localStorage.removeItem(customKeys.projects);
+        localStorage.removeItem(customKeys.skills);
+        localStorage.removeItem(customKeys.interviews);
+        hydrateEditableData();
+        refreshDashboardViews();
+      });
+      renderCustomizeTab("timelines");
+    };
+
+    function quoteRow(quote = "") {
+      return `
+        <div class="custom-row" data-quote-row>
+          ${textField("Quote", "quote", quote, 3)}
+          ${rowControls()}
+        </div>
+      `;
+    }
+
+    function renderQuotesEditor(content) {
+      content.innerHTML = `
+        <div class="custom-editor-list" id="custom-quote-list">
+          ${quotes.map(quoteRow).join("")}
+        </div>
+        <div class="custom-actions">
+          <button class="btn btn-secondary" onclick="addQuoteRow()">Add Quote</button>
+          <button class="btn btn-secondary" onclick="useCleanQuotes()">Use Clean Quotes</button>
+          <button class="btn btn-secondary" onclick="resetQuoteDefaults()">Reset Original Quotes</button>
+          <button class="btn" onclick="saveQuotesEditor()">Save Quotes</button>
+        </div>
+      `;
+    }
+
+    window.addQuoteRow = function() {
+      document.getElementById("custom-quote-list").insertAdjacentHTML("beforeend", quoteRow("New motivating quote."));
+    };
+
+    function readQuoteRows() {
+      return [...document.querySelectorAll("#custom-quote-list [data-quote-row]")]
+        .map(row => inputValue(row, "quote"))
+        .filter(Boolean);
+    }
+
+    window.saveQuotesEditor = function() {
+      withUndo("Quotes", [customKeys.quotes], () => {
+        saveStoredArray(customKeys.quotes, readQuoteRows());
+        hydrateEditableData();
+        refreshDashboardViews();
+      });
+      renderCustomizeTab("quotes");
+    };
+
+    window.useCleanQuotes = function() {
+      withUndo("Clean quotes", [customKeys.quotes], () => {
+        saveStoredArray(customKeys.quotes, cleanQuotes);
+        hydrateEditableData();
+        refreshDashboardViews();
+      });
+      renderCustomizeTab("quotes");
+    };
+
+    window.resetQuoteDefaults = function() {
+      withUndo("Quotes reset", [customKeys.quotes], () => {
+        localStorage.removeItem(customKeys.quotes);
+        hydrateEditableData();
+        refreshDashboardViews();
+      });
+      renderCustomizeTab("quotes");
+    };
 
     // Floating Mentor window toggle
     window.toggleWidgetChat = function() {
@@ -1820,11 +2861,7 @@
     };
 
     window.resetProfileFromChat = function() {
-      if (confirm("Do you want to re-configure your placement profile? This will let you change your name, study hours, and schedule targets.")) {
-        localStorage.removeItem("phantom_user_profile");
-        toggleWidgetChat();
-        checkOnboarding();
-      }
+      openCustomizeModal("profile");
     };
 
     window.setGeminiKey = function() {
@@ -1836,7 +2873,7 @@
     };
 
     window.handleWidgetKeyPress = function(e) {
-      if (e.key === "Enter") sendWidgetMsg();
+      if (e.key === "Enter") window.sendWidgetMsg();
     };
 
     window.sendWidgetMsg = async function() {
@@ -1852,16 +2889,17 @@
 
       try {
         const botReply = await generateMentorResponse(val);
-        loadingDiv.innerText = botReply;
+        loadingDiv.innerHTML = renderMentorMarkdown(botReply);
       } catch (err) {
         console.error(err);
-        loadingDiv.innerText = "Error getting response. Please check your internet connection or API Key settings.";
+        loadingDiv.textContent = "Error getting response. Please check your internet connection or API Key settings.";
       }
     };
 
     function addWidgetBubble(text, isUser = false) {
       const msgBox = document.getElementById("widget-chat-messages");
       const div = document.createElement("div");
+      div.className = "widget-chat-bubble";
       div.style.padding = "0.4rem 0.6rem";
       div.style.borderRadius = "8px";
       div.style.maxWidth = "85%";
@@ -1878,15 +2916,202 @@
         div.style.borderLeft = "2px solid var(--primary)";
       }
 
-      div.innerText = text;
+      if (isUser) {
+        div.textContent = text;
+      } else {
+        div.innerHTML = renderMentorMarkdown(text);
+      }
       msgBox.appendChild(div);
       msgBox.scrollTop = msgBox.scrollHeight;
       return div; // Return DOM node to update content asynchronously
     }
 
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function renderInlineMentorMarkdown(value) {
+      return escapeHtml(value)
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/`([^`]+)`/g, "<code>$1</code>");
+    }
+
+    function renderMentorMarkdown(text) {
+      const lines = String(text || "").replace(/\r\n/g, "\n").split("\n");
+      const blocks = [];
+      let paragraphLines = [];
+      let listItems = [];
+      let listTag = "ul";
+
+      const flushParagraph = () => {
+        if (!paragraphLines.length) return;
+        blocks.push(`<p>${renderInlineMentorMarkdown(paragraphLines.join(" "))}</p>`);
+        paragraphLines = [];
+      };
+
+      const flushList = () => {
+        if (!listItems.length) return;
+        blocks.push(`<${listTag}>${listItems.map(item => `<li>${renderInlineMentorMarkdown(item)}</li>`).join("")}</${listTag}>`);
+        listItems = [];
+      };
+
+      lines.forEach(line => {
+        const trimmed = line.trim();
+        if (!trimmed) {
+          flushParagraph();
+          flushList();
+          return;
+        }
+
+        const bullet = trimmed.match(/^[-*]\s+(.*)$/);
+        const numbered = trimmed.match(/^\d+[.)]\s+(.*)$/);
+        if (bullet || numbered) {
+          const nextListTag = bullet ? "ul" : "ol";
+          if (listItems.length && listTag !== nextListTag) flushList();
+          listTag = nextListTag;
+          flushParagraph();
+          listItems.push((bullet || numbered)[1]);
+        } else {
+          flushList();
+          paragraphLines.push(trimmed);
+        }
+      });
+
+      flushParagraph();
+      flushList();
+
+      return blocks.join("") || "<p></p>";
+    }
+
+    function formatStudyItemLine(item, state) {
+      return `${state[item.id] ? "Done" : "Pending"}: ${item.title} (${item.date}) - ${item.desc}`;
+    }
+
+    function getDashboardSnapshot() {
+      const state = loadState();
+      const today = getTodayInfo();
+      const allItems = getAllStudyItems(state);
+      const todayItems = allItems.filter(item => Number(item.numericDate) === today.numericDate);
+      const previousPending = allItems
+        .filter(item => Number(item.numericDate) < today.numericDate && !state[item.id])
+        .slice(0, 6);
+      const upcomingItems = allItems
+        .filter(item => Number(item.numericDate) > today.numericDate)
+        .slice(0, 5);
+      const done = primaryTopics.filter(topic => state[topic.id]).length;
+      const pct = primaryTopics.length ? Math.round((done / primaryTopics.length) * 100) : 0;
+      const profile = getProfileData();
+
+      return {
+        state,
+        today,
+        allItems,
+        todayItems,
+        previousPending,
+        upcomingItems,
+        done,
+        pct,
+        profile,
+        timetable: getTimetableItems(profile),
+        todayTopic: getCurrentStudyTopic()
+      };
+    }
+
+    function wantsDashboardAnswer(text) {
+      if (text.includes("time complexity") || text.includes("space complexity") || text === "complexity") {
+        return false;
+      }
+      const triggers = [
+        "today", "aaj", "kal", "yesterday", "target", "goal", "schedule", "timetable", "time",
+        "progress", "completion", "pending", "incomplete", "bacha", "poora", "complete",
+        "calendar", "contest", "roadmap", "profile", "date", "din", "padhna", "study"
+      ];
+      return triggers.some(trigger => text.includes(trigger));
+    }
+
+    function getDashboardMentorAnswer(text, uName) {
+      if (!wantsDashboardAnswer(text)) return "";
+
+      const snap = getDashboardSnapshot();
+      const profile = snap.profile;
+      const lines = [];
+      lines.push(`Hey ${uName}, ${snap.today.dateText}, ${snap.today.timeText} ke hisaab se dashboard status:`);
+
+      if (text.includes("progress") || text.includes("completion") || text.includes("stats") || text.includes("poora") || text.includes("complete")) {
+        lines.push(`**Progress:** ${snap.done}/${primaryTopics.length} core topics complete (${snap.pct}%).`);
+      }
+
+      if (text.includes("profile") || text.includes("target") || text.includes("goal")) {
+        lines.push(`**Target:** ${profile.targetDate || "Sept 1"}. Language focus: ${profile.language || "Java/DSA"}.`);
+      }
+
+      if (text.includes("time") || text.includes("timetable") || text.includes("schedule") || text.includes("aaj") || text.includes("today") || text.includes("padhna")) {
+        lines.push(`**Aaj ka target:** ${snap.todayTopic}.`);
+        if (snap.todayItems.length) {
+          lines.push("**Today tasks:**");
+          snap.todayItems.forEach(item => lines.push(`* ${formatStudyItemLine(item, snap.state)}`));
+        } else {
+          lines.push("* Aaj ke liye exact roadmap item nahi mila, current active topic follow karo.");
+        }
+        if (snap.timetable.length) {
+          lines.push("**Aaj ke time blocks:**");
+          snap.timetable.slice(0, 6).forEach(item => lines.push(`* ${item.time}: ${item.desc}`));
+        }
+      }
+
+      if (text.includes("kal") || text.includes("pending") || text.includes("incomplete") || text.includes("bacha") || text.includes("aaj") || text.includes("today") || text.includes("target")) {
+        if (snap.previousPending.length) {
+          lines.push("**Pehle pending clear karo:**");
+          snap.previousPending.forEach(item => lines.push(`* ${formatStudyItemLine(item, snap.state)}`));
+          lines.push("Recommendation: aaj ka fresh target start karne se pehle first 60-90 min pending backlog ko do.");
+        } else {
+          lines.push("**Backlog:** previous scheduled targets clear dikh rahe hain. Aaj ka block seedha start karo.");
+        }
+      }
+
+      if (text.includes("contest") || text.includes("calendar")) {
+        const todaysContests = contests.filter(c => Number(c.numericDate) === snap.today.numericDate);
+        lines.push("**Calendar:** " + (getTopicName(snap.today.month, snap.today.day) || "No calendar label for today."));
+        if (todaysContests.length) {
+          lines.push("**Aaj ke contests:**");
+          todaysContests.forEach(c => lines.push(`* ${c.name} (${c.platform}) - ${c.time}`));
+        } else {
+          lines.push("* Aaj koi contest saved nahi hai.");
+        }
+      }
+
+      if (!lines.some(line => line.includes("**Aaj ka target:**")) && !lines.some(line => line.includes("**Progress:**"))) {
+        lines.push(`**Current focus:** ${snap.todayTopic}.`);
+      }
+
+      return lines.join("\n");
+    }
+
+    function getDashboardContextForApi() {
+      const snap = getDashboardSnapshot();
+      return [
+        `Today: ${snap.today.dateText}, ${snap.today.timeText}`,
+        `Current target: ${snap.todayTopic}`,
+        `Progress: ${snap.done}/${primaryTopics.length} (${snap.pct}%)`,
+        `Pending previous: ${snap.previousPending.map(item => item.title).join(", ") || "none"}`,
+        `Today timetable: ${snap.timetable.map(item => `${item.time} ${item.desc}`).join(" | ")}`
+      ].join("\n");
+    }
+
     async function generateMentorResponse(input) {
       const text = input.toLowerCase().trim();
-      const profile = JSON.parse(localStorage.getItem("phantom_user_profile")) || {};
+      let profile = {};
+      try {
+        profile = JSON.parse(localStorage.getItem("phantom_user_profile")) || {};
+      } catch (e) {
+        localStorage.removeItem("phantom_user_profile");
+      }
       const uName = profile.name || "Mayank";
 
       // 1. Save API Key via chat text input command
@@ -1905,29 +3130,18 @@
         return "Resetting your profile and restarting onboarding chat flow... 🔄";
       }
 
-      if (text === "today" || text === "schedule" || text === "timetable" || text === "padhna") {
-        const topic = getCurrentStudyTopic();
-        return `Hey ${uName}, today's schedule is active. Topic is: ${topic}. Solve LC-3, LC-1004, LC-567! Check your dynamic timetable card for coding hours.`;
-      }
+      const dashboardAnswer = getDashboardMentorAnswer(text, uName);
+      if (dashboardAnswer) return dashboardAnswer;
 
-      if (text === "progress" || text === "completion" || text === "stats") {
-        const state = loadState();
-        let done = 0;
-        primaryTopics.forEach(t => { if (state[t.id]) done++; });
-        const pct = Math.round((done / primaryTopics.length) * 100);
-        return `You have completed ${done} out of ${primaryTopics.length} core topics (${pct}%). Keep pushing!`;
-      }
-
-      // 3. Dispatch to Gemini API if key is present
+      // 3. Dispatch to Gemini API only when dashboard data cannot answer the query
       const apiKey = localStorage.getItem("gemini_api_key");
       if (apiKey && apiKey !== "none" && apiKey !== "") {
-        const versions = ["v1", "v1beta"];
+        const versions = ["v1beta", "v1"];
         const models = [
+          "gemini-2.5-flash",
+          "gemini-2.5-flash-lite",
           "gemini-2.0-flash",
-          "gemini-1.5-flash",
-          "gemini-1.5-flash-latest",
-          "gemini-1.5-pro",
-          "gemini-1.5-pro-latest"
+          "gemini-1.5-flash"
         ];
         let lastError = null;
 
@@ -1943,10 +3157,12 @@ Here is the student's profile context for personalization:
 - Target Date: ${profile.targetDate || 'Sept 1'}
 - Language Focus: ${profile.language || 'Java'}
 - College/CRT schedule: ${profile.collegeHours || '09:00 AM - 04:30 PM'}
+- Local dashboard context:
+${getDashboardContextForApi()}
 
 User Query: ${input}`;
 
-              const res = await fetch(`https://generativelanguage.googleapis.com/${ver}/models/${model}:generateContent?key=${apiKey}`, {
+              const res = await fetch(`https://generativelanguage.googleapis.com/${ver}/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`, {
                 method: "POST",
                 headers: { 
                   "Content-Type": "application/json"
@@ -1963,12 +3179,25 @@ User Query: ${input}`;
               });
 
               if (!res.ok) {
-                const errData = await res.json();
+                let errData = {};
+                try {
+                  errData = await res.json();
+                } catch (jsonError) {
+                  errData = { error: { message: await res.text() } };
+                }
                 throw new Error(errData.error?.message || "Gemini API error");
               }
 
               const data = await res.json();
-              const reply = data.candidates[0].content.parts[0].text;
+              const reply = data.candidates?.[0]?.content?.parts
+                ?.map(part => part.text)
+                .filter(Boolean)
+                .join("\n")
+                .trim();
+              if (!reply) {
+                const reason = data.promptFeedback?.blockReason || data.candidates?.[0]?.finishReason || "empty response";
+                throw new Error(`Gemini returned ${reason}`);
+              }
               return reply.trim();
             } catch (e) {
               console.warn(`Model ${model} on ${ver} failed, trying fallback:`, e);
@@ -1982,6 +3211,9 @@ User Query: ${input}`;
       }
 
       // 4. Default Offline fallback if no API key is set
+      const offlineAnswer = getOfflineMentorFallback(text, uName);
+      if (offlineAnswer) return offlineAnswer;
+
       if (text.includes("tip") || text.includes("dsa") || text.includes("dp")) {
         const dsaTips = [
           "DP tip: Solve matching grid path problems using bottom-up tabulations to prevent recursion stack overflow.",
@@ -1999,8 +3231,34 @@ User Query: ${input}`;
       return `Keep grinding! To ask general CS and DSA questions, please set up your Gemini API key (click '🔑 Key' or type 'key YOUR_API_KEY'). In the meantime, focus on your active schedule today!`;
     }
 
+    function getOfflineMentorFallback(text, uName) {
+      if (text.includes("array") || text.includes("sliding window") || text.includes("window")) {
+        return `For sliding window, ${uName}, use this checklist: define the window state, expand right, shrink left while invalid, then update the answer. Practice LC-3, LC-424, LC-567, and LC-1004.`;
+      }
+
+      if (text.includes("dp") || text.includes("dynamic programming")) {
+        return "DP approach: identify state, write transition, define base cases, choose top-down or bottom-up, then optimize space only after correctness. Start with Climbing Stairs, House Robber, Grid Paths, and LCS.";
+      }
+
+      if (text.includes("resume") || text.includes("project")) {
+        return "For placements, keep resume bullets impact-first: action + tech + measurable result. Build 2 strong projects with auth, database, deployment, and one clear performance/security detail you can explain in interviews.";
+      }
+
+      if (text.includes("interview") || text.includes("hr") || text.includes("aptitude")) {
+        return "Interview prep split: 60% DSA patterns, 20% CS fundamentals, 10% projects, 10% HR stories. Prepare crisp STAR answers for conflict, leadership, failure, and your best project.";
+      }
+
+      if (text.includes("java") || text.includes("oops") || text.includes("dbms") || text.includes("os") || text.includes("cn")) {
+        return "CS-core plan: revise one subject at a time with interview questions. For Java/OOPS cover inheritance, polymorphism, abstraction, interfaces, collections, exceptions, and JVM basics with examples.";
+      }
+
+      return "";
+    }
+
+    hydrateEditableData();
     buildCalendarGrids();
     renderTasks();
+    renderTimelineCards();
     checkOnboarding();
     initTimer();
   </script>

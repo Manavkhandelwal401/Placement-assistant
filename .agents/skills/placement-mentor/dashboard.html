@@ -347,6 +347,11 @@
       .calendar-day {
         font-size: 0.7rem;
         padding: 0.25rem;
+        aspect-ratio: auto;
+        min-height: 42px;
+      }
+      .calendar-day div:last-child {
+        display: none; /* Hide topic label on mobile screen to prevent overflow */
       }
     }
   </style>
@@ -637,7 +642,6 @@
       return parseFloat(`${month}.${newDay < 10 ? '0' + newDay : newDay}`);
     }
 
-    // Rest of script continues ...
     function formatNumericDate(num) {
       const month = Math.floor(num) === 7 ? "July" : "Aug";
       const day = Math.round((num % 1) * 100);

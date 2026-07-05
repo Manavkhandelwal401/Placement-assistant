@@ -483,17 +483,8 @@
       <!-- Study Controller Timer Card -->
       <div class="card" style="border: 2px solid var(--primary); background: linear-gradient(180deg, var(--surface) 0%, rgba(88, 101, 242, 0.03) 100%); text-align: center;">
         <h2 style="justify-content: center;">⏱️ Study Session Timer</h2>
-        
-        <!-- Profile Switcher dropdown inside card -->
-        <div class="form-group" style="text-align: left; max-width: 160px; margin: 0.5rem auto 1rem auto;">
-          <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; text-align: center; margin-bottom: 0.25rem;">Active Profile</label>
-          <select class="form-control" id="profile-select" onchange="changeProfile()" style="padding: 0.35rem 0.5rem; font-size: 0.85rem; text-align: center;">
-            <option value="Mayank">Mayank 👨‍💻</option>
-            <option value="Mahak">Mahak 👩‍💻</option>
-          </select>
-        </div>
 
-        <div style="font-size:0.95rem; color: var(--text-muted);">
+        <div style="font-size:0.95rem; color: var(--text-muted); margin-top: 1rem;">
           Active Topic: <span id="timer-topic" style="color:var(--accent); font-weight:700;">Sliding Window</span>
         </div>
         
@@ -925,6 +916,20 @@
       return "";
     }
 
+    // Contests Schedule (July & August 2026)
+    const contests = [
+      { id: "lc-w1", name: "LeetCode Weekly Contest 501", date: "July 5", time: "08:00 AM - 09:30 AM", platform: "LeetCode", numericDate: 7.05 },
+      { id: "cf-r1", name: "Codeforces Round 1002 (Div. 2)", date: "July 7", time: "08:00 PM - 10:00 PM", platform: "Codeforces", numericDate: 7.07 },
+      { id: "at-abc1", name: "AtCoder Beginner Contest 361", date: "July 11", time: "05:30 PM - 07:10 PM", platform: "AtCoder", numericDate: 7.11 },
+      { id: "lc-bw1", name: "LeetCode Biweekly Contest 154", date: "July 11", time: "08:00 PM - 09:30 PM", platform: "LeetCode", numericDate: 7.11 },
+      { id: "lc-w2", name: "LeetCode Weekly Contest 502", date: "July 12", time: "08:00 AM - 09:30 AM", platform: "LeetCode", numericDate: 7.12 },
+      { id: "lc-w3", name: "LeetCode Weekly Contest 503", date: "July 19", time: "08:00 AM - 09:30 AM", platform: "LeetCode", numericDate: 7.19 },
+      { id: "at-abc2", name: "AtCoder Beginner Contest 362", date: "July 25", time: "05:30 PM - 07:10 PM", platform: "AtCoder", numericDate: 7.25 },
+      { id: "lc-bw2", name: "LeetCode Biweekly Contest 155", date: "July 25", time: "08:00 PM - 09:30 PM", platform: "LeetCode", numericDate: 7.25 },
+      { id: "lc-w4", name: "LeetCode Weekly Contest 504", date: "July 26", time: "08:00 AM - 09:30 AM", platform: "LeetCode", numericDate: 7.26 },
+      { id: "at-abc3", name: "AtCoder Beginner Contest 363", date: "Aug 8", time: "05:30 PM - 07:10 PM", platform: "AtCoder", numericDate: 8.08 }
+    ];
+
     function isPastContest(c) {
       const today = 7.05; // Base system date: July 5th
       if (c.numericDate < today) return true;
@@ -1064,24 +1069,9 @@
     let studyActive = false;
     let timerStartDate = null;
 
-    // Hardcoded Telegram Credentials (Updated with Group Chat ID)
+    // Hardcoded Telegram Credentials (Group Chat ID)
     const TG_TOKEN = "8664422971:AAGu4lS3jDfbgtSf0oHGdHxeS9GG53Vlg_c";
     const TG_CHAT_ID = "-1004410151416";
-
-    function getSelectedProfile() {
-      return document.getElementById("profile-select").value || "Mayank";
-    }
-
-    window.changeProfile = function() {
-      localStorage.setItem("active_study_profile", getSelectedProfile());
-    };
-
-    function loadActiveProfile() {
-      const saved = localStorage.getItem("active_study_profile");
-      if (saved) {
-        document.getElementById("profile-select").value = saved;
-      }
-    }
 
     function getCurrentStudyTopic() {
       const today = new Date();
@@ -1092,7 +1082,6 @@
     function initTimer() {
       const topic = getCurrentStudyTopic();
       document.getElementById("timer-topic").innerText = topic;
-      loadActiveProfile();
       renderHistory();
     }
 
@@ -1181,8 +1170,7 @@
         hard,
         rating: ratingVal,
         ratingLabel: ratingText,
-        notes,
-        profile: getSelectedProfile()
+        notes
       };
 
       let logs = JSON.parse(localStorage.getItem("study_history")) || [];
@@ -1212,13 +1200,12 @@
 
       historyList.innerHTML = logs.map((log, index) => {
         const starEmoji = "⭐".repeat(log.rating);
-        const name = log.profile || "Mayank";
-        const waText = encodeURIComponent(`📢 ${name}'s Study Update:\nTopic: ${log.topic}\nDuration: ${log.duration}\nEasy/Med/Hard Solved: ${log.easy}/${log.med}/${log.hard}\nUnderstanding: ${log.rating}/5\nNotes: ${log.notes}`);
+        const waText = encodeURIComponent(`📢 Mayank's Study Update:\nTopic: ${log.topic}\nDuration: ${log.duration}\nEasy/Med/Hard Solved: ${log.easy}/${log.med}/${log.hard}\nUnderstanding: ${log.rating}/5\nNotes: ${log.notes}`);
         
         return `
           <div class="history-item">
             <div style="display:flex; justify-content:space-between; font-weight:600;">
-              <span>👤 ${name} - 📅 ${log.date} - ${log.topic}</span>
+              <span>📅 ${log.date} - ${log.topic}</span>
               <span style="color:var(--accent);">${log.duration}</span>
             </div>
             <div style="color:var(--text-muted); margin-top:0.25rem;">
@@ -1249,14 +1236,13 @@
     function sendTelegramMessage(type, sessionLog = null) {
       if (!TG_TOKEN || !TG_CHAT_ID) return;
 
-      const profile = getSelectedProfile();
       let text = "";
       const startTime = timerStartDate ? timerStartDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : "";
 
       if (type === "start") {
-        text = `🚀 *${profile} has started studying!*\n\n📚 *Topic:* ${getCurrentStudyTopic()}\n⏰ *Start Time:* ${startTime}\n\n_Focus mode is active. Let's make this session count!_`;
+        text = `🚀 *Mayank has started studying!*\n\n📚 *Topic:* ${getCurrentStudyTopic()}\n⏰ *Start Time:* ${startTime}\n\n_Focus mode is active. Let's make this session count!_`;
       } else if (type === "stop" && sessionLog) {
-        text = `🎯 *Study Session Completed!*\n\n👤 *Student:* ${sessionLog.profile || profile}\n📅 *Date:* ${sessionLog.date}\n📚 *Topic:* ${sessionLog.topic}\n⏱️ *Duration:* ${sessionLog.duration}\n\n💻 *LeetCode Solutions:*\n• 🟢 Easy: ${sessionLog.easy} solved\n• 🟡 Medium: ${sessionLog.med} solved\n• 🔴 Hard: ${sessionLog.hard} solved\n\n🧠 *Comfort:* ${sessionLog.ratingLabel || sessionLog.rating}\n📝 *Session Notes:*\n_${sessionLog.notes || "None"}_`;
+        text = `🎯 *Study Session Completed!*\n\n📅 *Date:* ${sessionLog.date}\n📚 *Topic:* ${sessionLog.topic}\n⏱️ *Duration:* ${sessionLog.duration}\n\n💻 *LeetCode Solutions:*\n• 🟢 Easy: ${sessionLog.easy} solved\n• 🟡 Medium: ${sessionLog.med} solved\n• 🔴 Hard: ${sessionLog.hard} solved\n\n🧠 *Comfort:* ${sessionLog.ratingLabel || sessionLog.rating}\n📝 *Session Notes:*\n_${sessionLog.notes || "None"}_`;
       }
 
       const url = `https://api.telegram.org/bot${TG_TOKEN}/sendMessage`;
